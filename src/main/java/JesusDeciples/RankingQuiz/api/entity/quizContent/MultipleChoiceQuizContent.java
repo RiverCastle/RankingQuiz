@@ -1,18 +1,18 @@
 package JesusDeciples.RankingQuiz.api.entity.quizContent;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Builder;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
-@Builder
 public class MultipleChoiceQuizContent extends QuizContent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    protected List<String> options;
+    @ElementCollection
+    private List<String> options;
 }

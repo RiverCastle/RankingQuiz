@@ -18,8 +18,8 @@ public class QuizContentAddContentService implements QuizContentService {
         if (dto.getQuizType() == QuizType.MULTIPLE_CHOICE) {
             List<String> multipleOptions = dto.getMultipleOptions();
             if (multipleOptions != null) {
-                MultipleChoiceQuizContent entity = MultipleChoiceQuizContent.builder()
-                        .options((dto).getMultipleOptions()).build();
+                MultipleChoiceQuizContent entity = new MultipleChoiceQuizContent();
+                entity.setOptions((dto).getMultipleOptions());
                 entity.setStatement(dto.getStatement());
                 entity.setAnswer(dto.getAnswer());
                 entity.setTimeLimit(dto.getTimeLimit());

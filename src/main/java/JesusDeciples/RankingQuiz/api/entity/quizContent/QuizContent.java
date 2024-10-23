@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
-@Embeddable
 @MappedSuperclass
 public abstract class QuizContent {
     private String statement;
