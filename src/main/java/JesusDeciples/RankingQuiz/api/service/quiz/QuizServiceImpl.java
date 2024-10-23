@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AddNewQuizService implements QuizService {
+public class QuizServiceImpl implements QuizService {
     private final MultipleChoiceQuizContentFactory multipleChoiceQuizContentFactory;
     private final QuizRepository quizRepository;
     @Override
@@ -32,5 +32,10 @@ public class AddNewQuizService implements QuizService {
             return dto;
         }
         return null;
+    }
+
+    @Override
+    public Quiz getQuiz(Long quizId) {
+        return quizRepository.findByIdWithMultipleChoiceQuizContent(quizId).orElse(null);
     }
 }

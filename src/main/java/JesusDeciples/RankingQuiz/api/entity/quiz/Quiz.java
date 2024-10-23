@@ -21,4 +21,6 @@ public class Quiz extends BaseTimeEntity {
         this.setCreatedAt();
         this.setFinishedAt(quizContent.getTimeLimit());
     }
+    public Quiz() {
+    }
 }
