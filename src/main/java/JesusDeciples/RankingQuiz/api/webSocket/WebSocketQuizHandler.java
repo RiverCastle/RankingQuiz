@@ -23,6 +23,8 @@ public class WebSocketQuizHandler {
     private final QuizDataCenter quizDataCenter;
     private final Map<String, WebSocketSession> sessions = new HashMap<>();
 
+    private final String guideMessage_NoAnswer = "퀴즈에 참가하지 않으셨어요. 다음 퀴즈에는 꼭 참가해보세요!";
+
     @Scheduled(fixedDelay = 1000)
     private void checkPresentState() throws IOException {
 
@@ -72,13 +74,14 @@ public class WebSocketQuizHandler {
                 Set<String> sessionIds = sessions.keySet();
                 Map<String, QuizResultDto> results = quizDataCenter.getResults();
                 Set<String> sessionIdsOfParticipants = results.keySet();
-                for (String sessionId : sessionIds) {// QuizResult -> TextMessage 변환 TODO MessageWrapper 적용
+                for (String sessionId : sessionIds) {// QuizResult -> TextMessage 변환
                     if (sessionIdsOfParticipants.contains(sessionId)) {// 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
                         TextMessage textMessage = new TextMessage(
                                 textMessageFactory.produceTextMessage(results.get(sessionId)));
                         sessions.get(sessionId).sendMessage(textMessage);
                     } else {
-                        sessions.get(sessionId).sendMessage(new TextMessage("퀴즈에 참가하지 않으셨어요. 다음 퀴즈에는 꼭 참가해보세요!"));
+                        String message = textMessageFactory.produceTextMessage(guideMessage_NoAnswer);
+                        sessions.get(sessionId).sendMessage(new TextMessage(message));
                     }
                 }
                 updateQuizSystemState(ON_QUIZ_SETTING);
@@ -89,12 +92,12 @@ public class WebSocketQuizHandler {
                 log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
                 this.presentState = nextState;
                 quizDataCenter.setNewQuizExcept(); // 새 퀴즈 생성 이전 QuizContent 제외
-                String newQuizTextMessage = // 새 퀴즈 메시지로 변환 TODO MessageWrapper 적용
+                String newQuizTextMessage = // 새 퀴즈 메시지로 변환
                         textMessageFactory.produceTextMessage(quizDataCenter.getPresentQuizDto());
 
                 Set<String> sessionIds = sessions.keySet();
                 for (String sessionId : sessionIds) // 전체 활성 참가자에게 전송
-                    sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage)); // TODO MessageWrapper 적용
+                    sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage));
                 updateQuizSystemState(ON_QUIZ);
             }
             else if (presentState == WAITING & nextState == ON_QUIZ_SETTING) {
@@ -104,11 +107,11 @@ public class WebSocketQuizHandler {
                 log.info("퀴즈 최초 시작");
                 this.presentState = nextState;
                 quizDataCenter.initiateQuiz(); // 퀴즈를 처음 시작 QuizContent 중 예외없이 임의로 출제
-                String newQuizTextMessage = // 새 퀴즈 메시지로 변환 TODO MessageWrapper 적용
+                String newQuizTextMessage = // 새 퀴즈 메시지로 변환
                         textMessageFactory.produceTextMessage(quizDataCenter.getPresentQuizDto());
 
                 Set<String> sessionIds = sessions.keySet(); // 모든 세션에게 퀴즈 전송
-                for (String sessionId : sessionIds) // TODO MessageWrapper 적용
+                for (String sessionId : sessionIds)
                     sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage));
                 updateQuizSystemState(ON_QUIZ);
             }
