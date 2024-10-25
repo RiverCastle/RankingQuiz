@@ -54,24 +54,27 @@ public class WebSocketQuizHandler {
     public void updateQuizSystemState(QuizSystemState nextState) throws IOException {
         if (this.presentState != nextState) {
             if (presentState == ON_QUIZ & nextState == COMPLETED_QUIZ_GETTING_ANSWERED) {
+                // 퀴즈 중 -> 퀴즈 종료, 답안 수거로 상태 변경
                 log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
-                this.presentState = nextState; // 퀴즈 중 -> 퀴즈 종료, 답안 수거로 상태 변경
+                this.presentState = nextState;
             }
             else if (presentState == COMPLETED_QUIZ_GETTING_ANSWERED & nextState == ON_SCORING) {
+                // 퀴즈 종료, 답안 수거 -> 채점 시작
                 log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
-                this.presentState = nextState; // 퀴즈 종료, 답안 수거 -> 채점 시작
+                this.presentState = nextState;
                 quizDataCenter.score();
                 updateQuizSystemState(COMPLETED_SCORING);
             }
             else if (presentState == ON_SCORING & nextState == COMPLETED_SCORING) {
+                // 채점 시작 -> 채점 종료
                 log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
-                this.presentState = nextState; // 채점 시작 -> 채점 종료
+                this.presentState = nextState;
                 Set<String> sessionIds = sessions.keySet();
                 Map<String, QuizResultDto> results = quizDataCenter.getResults();
                 Set<String> sessionIdsOfParticipants = results.keySet();
-                for (String sessionId : sessionIds) {
-                    if (sessionIdsOfParticipants.contains(sessionId)) {
-                        TextMessage textMessage = new TextMessage( // QuizResult -> TextMessage 변환 및 전송
+                for (String sessionId : sessionIds) {// QuizResult -> TextMessage 변환 TODO MessageWrapper 적용
+                    if (sessionIdsOfParticipants.contains(sessionId)) {// 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
+                        TextMessage textMessage = new TextMessage(
                                 textMessageFactory.produceTextMessage(results.get(sessionId)));
                         sessions.get(sessionId).sendMessage(textMessage);
                     } else {
@@ -81,36 +84,36 @@ public class WebSocketQuizHandler {
                 updateQuizSystemState(ON_QUIZ_SETTING);
             }
             else if (presentState == COMPLETED_SCORING & nextState == ON_QUIZ_SETTING) {
-                log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
                 // 채점 종료 -> 새 퀴즈 생성
                 // 전체 세션에 새 퀴즈 전송
+                log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
                 this.presentState = nextState;
-                quizDataCenter.setNewQuizExcept(); // 새 퀴즈 생성
-                String newQuizTextMessage = // 새 퀴즈 메시지로 변환
+                quizDataCenter.setNewQuizExcept(); // 새 퀴즈 생성 이전 QuizContent 제외
+                String newQuizTextMessage = // 새 퀴즈 메시지로 변환 TODO MessageWrapper 적용
                         textMessageFactory.produceTextMessage(quizDataCenter.getPresentQuizDto());
 
                 Set<String> sessionIds = sessions.keySet();
-                for (String sessionId : sessionIds)
-                    sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage));
+                for (String sessionId : sessionIds) // 전체 활성 참가자에게 전송
+                    sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage)); // TODO MessageWrapper 적용
                 updateQuizSystemState(ON_QUIZ);
             }
             else if (presentState == WAITING & nextState == ON_QUIZ_SETTING) {
                 log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
-                // 대기 상태 -> 퀴즈 처음 시작
+                // 대기 상태 -> 퀴즈 생성
                 // 전체 세션에 새 퀴즈 메시지 전송
                 log.info("퀴즈 최초 시작");
                 this.presentState = nextState;
-                quizDataCenter.initiateQuiz(); // 퀴즈를 처음 시작
-                String newQuizTextMessage = // 새 퀴즈 메시지로 변환
+                quizDataCenter.initiateQuiz(); // 퀴즈를 처음 시작 QuizContent 중 예외없이 임의로 출제
+                String newQuizTextMessage = // 새 퀴즈 메시지로 변환 TODO MessageWrapper 적용
                         textMessageFactory.produceTextMessage(quizDataCenter.getPresentQuizDto());
 
-                // 모든 세션에게 퀴즈 전송
-                Set<String> sessionIds = sessions.keySet();
-                for (String sessionId : sessionIds)
+                Set<String> sessionIds = sessions.keySet(); // 모든 세션에게 퀴즈 전송
+                for (String sessionId : sessionIds) // TODO MessageWrapper 적용
                     sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage));
                 updateQuizSystemState(ON_QUIZ);
             }
             else if (presentState == ON_QUIZ_SETTING & nextState == ON_QUIZ) {
+                // 퀴즈 생성 완료 -> 퀴즈 시작
                 log.info("현재 상태 = " + presentState +" 다음 상태 = " + nextState);
                 this.presentState = ON_QUIZ;
             }
