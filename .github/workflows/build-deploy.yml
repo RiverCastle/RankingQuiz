@@ -1,0 +1,82 @@
+name: build and deploy
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  BuildAndTransferAndRun:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set yml
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml  # 암호화된 yml 내용을 복호화하여 생성
+          find src
+
+      - name: gradlew 권한 수정
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle (Test 제외)
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: clean build -x test
+
+      - name: Add EC2 Host Key
+        env:
+          host: ${{ secrets.REMOTE_SERVER }}
+          PEM_KEY: ${{ secrets.PEM_KEY}}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PEM_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $host >> ~/.ssh/known_hosts  
+
+      # SCP로 서버로 전송
+      - name: SCP transfer
+        env:
+          PEM_KEY: ${{ secrets.PEM_KEY }}  # PEM 키를 GitHub Secrets에 저장
+          username: ${{ secrets.SSH_USER }}
+          host: ${{ secrets.REMOTE_SERVER }}
+          key: ${{ secrets.PEM_KEY }}
+        run: |
+          echo "${{ secrets.PEM_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          scp -i private_key.pem build/libs/*.jar $username@$host:/home/ubuntu/app/
+
+      - name: 원격 서버에서 빌드 결과물 실행
+        env:
+          PEM_KEY: ${{ secrets.PEM_KEY }}  # PEM 키를 GitHub Secrets에 저장
+          username: ${{ secrets.SSH_USER }}
+          host: ${{ secrets.REMOTE_SERVER }}
+          key: ${{ secrets.PEM_KEY }}
+        run: |
+          echo "${{ secrets.PEM_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          
+          ssh -i private_key.pem "$username@$host" "
+            JAR_FILE=\$(find /home/ubuntu/app -name '*.jar' | head -n 1) &&
+            if lsof -i :8080; then
+              echo '8080 포트에 실행 중인 프로세스가 있습니다. 종료합니다.'
+              kill -9 \$(lsof -t -i :8080)
+            else
+              echo '8080 포트에 실행 중인 프로세스가 없습니다. 바로 실행합니다.'
+            fi &&
+            if [ -n \"\$JAR_FILE\" ]; then
+             nohup java -jar \"\$JAR_FILE\" > output.log 2>&1 &
+            else
+              echo 'JAR 파일이 없습니다.'
+            fi
+          "
+          echo 'key를 제거합니다.'
+          ssh-keygen -R $host
