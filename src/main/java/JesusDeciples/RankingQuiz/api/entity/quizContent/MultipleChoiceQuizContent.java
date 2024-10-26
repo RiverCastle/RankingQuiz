@@ -13,6 +13,6 @@ public class MultipleChoiceQuizContent extends QuizContent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> options;
 }

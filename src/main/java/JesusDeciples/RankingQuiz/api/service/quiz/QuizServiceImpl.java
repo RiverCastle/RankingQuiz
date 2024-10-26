@@ -5,6 +5,7 @@ import JesusDeciples.RankingQuiz.api.dto.response.MultipleChoiceQuizResponseDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResponseDto;
 import JesusDeciples.RankingQuiz.api.entity.quiz.Quiz;
 import JesusDeciples.RankingQuiz.api.entity.quizContent.MultipleChoiceQuizContent;
+import JesusDeciples.RankingQuiz.api.entity.quizContent.QuizContent;
 import JesusDeciples.RankingQuiz.api.repository.QuizRepository;
 import JesusDeciples.RankingQuiz.api.service.MultipleChoiceQuizContentFactory;
 import jakarta.transaction.Transactional;
@@ -37,5 +38,14 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Quiz getQuiz(Long quizId) {
         return quizRepository.findByIdWithMultipleChoiceQuizContent(quizId).orElse(null);
+    }
+
+    @Override
+    public Quiz addNewQuiz(QuizContent quizContent) {
+        Quiz entitiy = new Quiz();
+        entitiy.setQuizContent(quizContent);
+        entitiy.setCreatedAt();
+        entitiy.setFinishedAt(quizContent.getTimeLimit());
+        return quizRepository.save(entitiy);
     }
 }
