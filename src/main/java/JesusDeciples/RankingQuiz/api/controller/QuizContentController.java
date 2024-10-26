@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuizContentController {
     private final QuizContentService quizContentService;
     @PostMapping
-    public void addQuizContent(@RequestBody QuizContentCreateDto quizContentCreateDto) {
+    public void addQuizContent(@RequestBody QuizContentCreateDto[] quizContentCreateDtos) {
+        for (QuizContentCreateDto quizContentCreateDto : quizContentCreateDtos)
         quizContentService.addQuiz(quizContentCreateDto);
     }
 }
