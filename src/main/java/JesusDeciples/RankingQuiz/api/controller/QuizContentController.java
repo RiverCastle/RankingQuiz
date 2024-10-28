@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/quiz-content")
+@RequestMapping("/api/quiz-content")
 public class QuizContentController {
     private final QuizContentService quizContentService;
     @PostMapping
