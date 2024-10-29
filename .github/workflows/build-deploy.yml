@@ -60,11 +60,25 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           host: ${{ secrets.REMOTE_SERVER }}
           key: ${{ secrets.PEM_KEY }}
+          issue_post_token: ${{ secrets.ISSUE_POST_TOKEN}}
+          backend_repo_issue: ${{ secrets.RANKING_QUIZ_BACKEND_REPO_ISSUE}}
+          frontend_repo_issue: ${{ secrets.RANKING_QUIZ_FRONTEND_REPO_ISSUE}}
+          frontend_url: ${{ secrets.FRONTEND_URL}}
+
         run: |
           echo "${{ secrets.PEM_KEY }}" > private_key.pem
           chmod 600 private_key.pem
           
           ssh -i private_key.pem "$username@$host" "
+            # Java 옵션을 환경변수로 설정
+            export JAVA_OPTS='-Duser.timezone=Asia/Seoul'  
+          
+            # 사용자 환경 변수
+            export ISSUE_POST_TOKEN='$issue_post_token' 
+            export BACKEND_REPO_ISSUE='$backend_repo_issue'  
+            export FRONTEND_REPO_ISSUE='$frontend_repo_issue'  
+            export FRONTEND_URL='$frontend_url'  
+          
             JAR_FILE=\$(find /home/ubuntu/app -name '*.jar' | head -n 1) &&
             if lsof -i :8080; then
               echo '8080 포트에 실행 중인 프로세스가 있습니다. 종료합니다.'
@@ -73,7 +87,7 @@ jobs:
               echo '8080 포트에 실행 중인 프로세스가 없습니다. 바로 실행합니다.'
             fi &&
             if [ -n \"\$JAR_FILE\" ]; then
-             nohup java -Duser.timezone=Asia/Seoul -jar \"\$JAR_FILE\" > output.log 2>&1 &
+             nohup java \$JAVA_OPTS -jar \"\$JAR_FILE\" > output.log 2>&1 &
             else
               echo 'JAR 파일이 없습니다.'
             fi
