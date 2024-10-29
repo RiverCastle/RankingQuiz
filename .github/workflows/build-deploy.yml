@@ -73,7 +73,7 @@ jobs:
               echo '8080 포트에 실행 중인 프로세스가 없습니다. 바로 실행합니다.'
             fi &&
             if [ -n \"\$JAR_FILE\" ]; then
-             nohup java -jar \"\$JAR_FILE\" > output.log 2>&1 &
+             nohup java -Duser.timezone=Asia/Seoul -jar \"\$JAR_FILE\" > output.log 2>&1 &
             else
               echo 'JAR 파일이 없습니다.'
             fi
