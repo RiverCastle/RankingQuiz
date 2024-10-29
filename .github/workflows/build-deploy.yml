@@ -75,8 +75,8 @@ jobs:
           
             # 사용자 환경 변수
             export ISSUE_POST_TOKEN='$issue_post_token' 
-            export BACKEND_REPO_ISSUE='$backend_repo_issue'  
-            export FRONTEND_REPO_ISSUE='$frontend_repo_issue'  
+            export RANKING_QUIZ_BACKEND_REPO_ISSUE='$backend_repo_issue'  
+            export RANKING_QUIZ_FRONTEND_REPO_ISSUE='$frontend_repo_issue'  
             export FRONTEND_URL='$frontend_url'  
           
             JAR_FILE=\$(find /home/ubuntu/app -name '*.jar' | head -n 1) &&
