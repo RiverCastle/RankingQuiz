@@ -64,6 +64,7 @@ jobs:
           kakao_client_id: ${{ secrets.KAKAO_CLIENT_ID }}
           kakao_client_secret: ${{ secrets.KAKAO_CLIENT_SECRET }}
           kakao_redirect_uri: ${{ secrets.KAKAO_REDIRECT_URI }}
+          secret: ${{ secrets.SECRET}}
 
           PEM_KEY: ${{ secrets.PEM_KEY }}  # PEM 키를 GitHub Secrets에 저장
           username: ${{ secrets.SSH_USER }}
@@ -89,6 +90,7 @@ jobs:
             export KAKAO_CLIENT_ID='$kakao_client_id'
             export KAKAO_CLIENT_SECRET='$kakao_client_secret'
             export KAKAO_REDIRECT_URI='$kakao_redirect_uri'
+            export SECRET='$secret'
           
             export RANKING_QUIZ_BACKEND_REPO_ISSUE='$backend_repo_issue'  
             export RANKING_QUIZ_FRONTEND_REPO_ISSUE='$frontend_repo_issue'  
