@@ -56,14 +56,21 @@ jobs:
 
       - name: 원격 서버에서 빌드 결과물 실행
         env:
+          frontend_url: ${{ secrets.FRONTEND_URL}}
+          issue_post_token: ${{ secrets.ISSUE_POST_TOKEN}}
+
+          kakao_api_url: ${{ secrets.KAKAO_API_URL}}
+          kakao_auth_url: ${{ secrets.KAKAO_AUTH_URL }}
+          kakao_client_id: ${{ secrets.KAKAO_CLIENT_ID }}
+          kakao_client_secret: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          kakao_redirect_uri: ${{ secrets.KAKAO_REDIRECT_URI }}
+
           PEM_KEY: ${{ secrets.PEM_KEY }}  # PEM 키를 GitHub Secrets에 저장
           username: ${{ secrets.SSH_USER }}
           host: ${{ secrets.REMOTE_SERVER }}
           key: ${{ secrets.PEM_KEY }}
-          issue_post_token: ${{ secrets.ISSUE_POST_TOKEN}}
           backend_repo_issue: ${{ secrets.RANKING_QUIZ_BACKEND_REPO_ISSUE}}
           frontend_repo_issue: ${{ secrets.RANKING_QUIZ_FRONTEND_REPO_ISSUE}}
-          frontend_url: ${{ secrets.FRONTEND_URL}}
 
         run: |
           echo "${{ secrets.PEM_KEY }}" > private_key.pem
@@ -74,10 +81,18 @@ jobs:
             export JAVA_OPTS='-Duser.timezone=Asia/Seoul'  
           
             # 사용자 환경 변수
-            export ISSUE_POST_TOKEN='$issue_post_token' 
+            export FRONTEND_URL='$frontend_url'
+            export ISSUE_POST_TOKEN='$issue_post_token'
+            
+            export KAKAO_API_URL='$kakao_api_url'
+            export KAKAO_AUTH_URL='$kakao_auth_url'
+            export KAKAO_CLIENT_ID='$kakao_client_id'
+            export KAKAO_CLIENT_SECRET='$kakao_client_secret'
+            export KAKAO_REDIRECT_URI='$kakao_redirect_uri'
+          
             export RANKING_QUIZ_BACKEND_REPO_ISSUE='$backend_repo_issue'  
             export RANKING_QUIZ_FRONTEND_REPO_ISSUE='$frontend_repo_issue'  
-            export FRONTEND_URL='$frontend_url'  
+              
           
             JAR_FILE=\$(find /home/ubuntu/app -name '*.jar' | head -n 1) &&
             if lsof -i :8080; then
