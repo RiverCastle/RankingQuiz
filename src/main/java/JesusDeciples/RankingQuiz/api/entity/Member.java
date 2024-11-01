@@ -1,6 +1,6 @@
 package JesusDeciples.RankingQuiz.api.entity;
 
-import JesusDeciples.RankingQuiz.api.enums.MemberRole;
+import JesusDeciples.RankingQuiz.api.enums.Authority;
 import JesusDeciples.RankingQuiz.api.enums.OAuthProvider;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -17,7 +17,8 @@ public class Member {
     private String name;
     @NotBlank
     private String email;
-    private MemberRole role;
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
     @Enumerated(EnumType.STRING)
     private OAuthProvider provider;
 
