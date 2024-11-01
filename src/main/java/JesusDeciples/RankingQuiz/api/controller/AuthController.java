@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth/code")
+@CrossOrigin(origins = {"http://localhost:8081", "https://rankingquiz.rivercastleworks.site"})
 public class AuthController {
     private final OAuth2LoginService oAuth2LoginService;
 
     @PostMapping("/kakao")
-    @CrossOrigin(origins = "https://rankingquiz.rivercastleworks.site")
     public ResponseEntity<AuthTokens> LoginUsingKakao(@RequestBody KakaoLoginParams params) {
         return ResponseEntity.ok(oAuth2LoginService.login(params));
     }
