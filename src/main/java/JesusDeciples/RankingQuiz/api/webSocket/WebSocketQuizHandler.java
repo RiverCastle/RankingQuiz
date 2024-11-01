@@ -5,6 +5,7 @@ import JesusDeciples.RankingQuiz.api.dto.GuideMessage;
 import JesusDeciples.RankingQuiz.api.dto.GuideMessageBundle;
 import JesusDeciples.RankingQuiz.api.dto.MessageWrapper;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
+import JesusDeciples.RankingQuiz.api.jwt.JWTProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class WebSocketQuizHandler implements WebSocketHandler {
     private final Map<String, WebSocketSession> sessions = new HashMap<>();
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
+    private final JWTProducer jwtProducer;
 
     @Scheduled(fixedDelay = 1000)
     private void checkPresentState() throws IOException, InterruptedException {
@@ -141,6 +143,12 @@ public class WebSocketQuizHandler implements WebSocketHandler {
         MessageWrapper messageWrapperFromClient = objectMapper.readValue(((TextMessage) message).getPayload(), MessageWrapper.class);
         String dataType = messageWrapperFromClient.getDataType();
         switch (dataType) {
+            case "AccessToken" -> {
+                String accessToken = messageWrapperFromClient.getObject().toString();
+                Long memberId = Long.parseLong(jwtProducer.extractSubject(accessToken));
+                session.getAttributes().put("memberId", memberId);
+            }
+
             case "AnswerDto" -> {
                 if (presentState != COMPLETED_QUIZ_GETTING_ANSWERED) return;
 
@@ -152,6 +160,9 @@ public class WebSocketQuizHandler implements WebSocketHandler {
                 Long quizIdInAnswerDto = answerDto.getQuizId();
                 if (!presentQuizId.equals(quizIdInAnswerDto)) return;
 
+                // 엑세스 토큰을 가진 세션의 경우 memberId 값이 있음
+                Long memberId = (Long) session.getAttributes().get("memberId");
+                answerDto.setMemberId(memberId);
                 quizDataCenter.loadAnswerFromUser(session.getId(), answerDto);
                 session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
                         guideMessageBundle.getAnswerSubmittedMessage())));
