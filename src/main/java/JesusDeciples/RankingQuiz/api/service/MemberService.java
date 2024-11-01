@@ -11,4 +11,6 @@ public interface MemberService {
     MemberInfoResponseDto findMemberInfoById(Long currentMemberId);
 
     void chageMemberNameInto(Long memberId, String newName);
+
+    Member getMemberById(Long memberId);
 }

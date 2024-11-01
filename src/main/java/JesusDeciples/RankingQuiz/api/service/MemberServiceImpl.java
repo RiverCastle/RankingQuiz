@@ -43,4 +43,9 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
     }
 
+    @Override
+    public Member getMemberById(Long memberId) {
+        return memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("유저를 조회하지 못했습니다."));
+    }
+
 }
