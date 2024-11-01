@@ -139,48 +139,24 @@ public class WebSocketQuizHandler implements WebSocketHandler {
         if (message instanceof BinaryMessage) return;
 
         MessageWrapper messageWrapperFromClient = objectMapper.readValue(((TextMessage) message).getPayload(), MessageWrapper.class);
-        System.out.println("messageWrapperFromClient = " + messageWrapperFromClient);
-        if (!messageWrapperFromClient.getDataType().equals("AnswerDto")) return;
+        String dataType = messageWrapperFromClient.getDataType();
+        switch (dataType) {
+            case "AnswerDto" -> {
+                if (presentState != COMPLETED_QUIZ_GETTING_ANSWERED) return;
 
-        if (presentState == COMPLETED_QUIZ_SETTING) { // 퀴즈 생성 완료
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getGuide_message_not_accept_answer_data())));
-            return;
-        } else if (presentState == ON_QUIZ) {
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getAutoSubmissionMessage())));
-            return;
-        } else if (presentState == COMPLETED_QUIZ_GETTING_ANSWERED) { // 답안 수거
-            Object objectInMessage = messageWrapperFromClient.getObject();
-            AnswerDto answerDto = objectMapper.convertValue(objectInMessage, AnswerDto.class);
+                Object objectInMessage = messageWrapperFromClient.getObject();
+                AnswerDto answerDto = objectMapper.convertValue(objectInMessage, AnswerDto.class);
+                if (answerDto == null) return;
 
-            if (answerDto == null) {
-                // MessageWrapper에 AnswerDto가 없는 경우
+                Long presentQuizId = quizDataCenter.getPresentQuizDto().getQuizId();
+                Long quizIdInAnswerDto = answerDto.getQuizId();
+                if (!presentQuizId.equals(quizIdInAnswerDto)) return;
+
+                quizDataCenter.loadAnswerFromUser(session.getId(), answerDto);
                 session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                        guideMessageBundle.getGuide_message_invalid_answer_data())));
+                        guideMessageBundle.getAnswerSubmittedMessage())));
                 return;
             }
-
-            Long presentQuizId = quizDataCenter.getPresentQuizDto().getQuizId();
-            Long quizIdInAnswerDto = answerDto.getQuizId();
-            if (!presentQuizId.equals(quizIdInAnswerDto)) { // QuizId 검증
-                session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                        guideMessageBundle.getGuide_message_quiz_id_mismatch())));
-                return;
-            }
-            // 정상적으로 답안을 받은 경우
-            quizDataCenter.loadAnswerFromUser(session.getId(), answerDto);
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getAnswerSubmittedMessage())));
-            return;
-        } else if (presentState == ON_SCORING) { // 채점 중
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getGuide_message_late_sumbssion())));
-            return;
-        } else if (presentState == COMPLETED_SCORING) { // 채점 완료
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getGuide_message_late_sumbssion())));
-            return;
         }
     }
 
@@ -198,10 +174,6 @@ public class WebSocketQuizHandler implements WebSocketHandler {
     TODO TextMessageHandler 구현
 
     TODO BinaryMessageHandler 구현
-
-
-    TODO switch (presentState)
-
      */
 
     @Override
