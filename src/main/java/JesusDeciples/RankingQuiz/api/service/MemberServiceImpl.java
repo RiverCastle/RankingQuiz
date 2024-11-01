@@ -1,5 +1,6 @@
 package JesusDeciples.RankingQuiz.api.service;
 
+import JesusDeciples.RankingQuiz.api.dto.response.MemberInfoResponseDto;
 import JesusDeciples.RankingQuiz.api.entity.Member;
 import JesusDeciples.RankingQuiz.api.enums.OAuthProvider;
 import JesusDeciples.RankingQuiz.api.repository.MemberRepository;
@@ -28,4 +29,18 @@ public class MemberServiceImpl implements MemberService {
             return memberRepository.save(newMember);
         }
     }
+
+    @Override
+    public MemberInfoResponseDto findMemberInfoById(Long memberId) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("회원가입 필요 | 유저 없음"));
+        return MemberInfoResponseDto.of(member.getName(), member.getPoint());
+    }
+
+    @Override
+    public void chageMemberNameInto(Long memberId, String newName) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("회원가입 필요 | 유저 없음"));
+        member.setName(newName);
+        memberRepository.save(member);
+    }
+
 }
