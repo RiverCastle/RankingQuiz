@@ -2,7 +2,6 @@ package JesusDeciples.RankingQuiz.api.service;
 
 import JesusDeciples.RankingQuiz.api.dto.response.MemberInfoResponseDto;
 import JesusDeciples.RankingQuiz.api.entity.Member;
-import JesusDeciples.RankingQuiz.api.entity.Member;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,5 +11,4 @@ public interface MemberService {
     MemberInfoResponseDto findMemberInfoById(Long currentMemberId);
 
     void chageMemberNameInto(Long memberId, String newName);
-    Member findOrCreateMemberByEmail(String email);
 }
