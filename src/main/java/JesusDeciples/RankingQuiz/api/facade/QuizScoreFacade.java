@@ -16,11 +16,14 @@ import org.springframework.stereotype.Component;
 public class QuizScoreFacade {
 //    추후에 score 결과 save를 위해 facade 적용
     private final QuizService quizService;
+    private final QuizResultService quizResultService;
+    private final MemberService memberService;
+
     public QuizResultDto score(Long quizId, AnswerDto answerDto) {
         Quiz quiz = quizService.getQuiz(quizId);
         String userAnswer = answerDto.getUserAnswer();
         boolean isCorrect = quiz.getQuizContent().getAnswer().equals(userAnswer);
-        
+
         QuizResultDto dto = new QuizResultDto(isCorrect);
         dto.setMyAnswer(userAnswer);
         dto.setAnswer(quiz.getQuizContent().getAnswer());
@@ -28,6 +31,12 @@ public class QuizScoreFacade {
         dto.setWrittenAt(answerDto.getWrittenAt());
         dto.setUserName(answerDto.getUserName());
 
+        // 인증된 사용자의 경우, 퀴즈 결과 저장
+        Long memberId = answerDto.getMemberId();
+        if (memberId != null) {
+            Member member = memberService.getMemberById(answerDto.getMemberId());
+            QuizResult quizResult = quizResultService.addQuizResult(quiz, member, answerDto.getUserAnswer(), answerDto.getWrittenAt());
+        }
         return dto;
     }
 }
