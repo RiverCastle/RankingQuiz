@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/quiz-content")
+@CrossOrigin(origins = {"http://localhost:8081", "https://rankingquiz.rivercastleworks.site"})
 public class QuizContentController {
     private final QuizContentService quizContentService;
     @PostMapping
-    @CrossOrigin(origins = "https://rankingquiz.rivercastleworks.site")
     public void addQuizContent(@RequestBody QuizContentCreateDto[] quizContentCreateDtos) {
         for (QuizContentCreateDto quizContentCreateDto : quizContentCreateDtos)
         quizContentService.addQuiz(quizContentCreateDto);

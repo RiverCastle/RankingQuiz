@@ -5,6 +5,7 @@ import JesusDeciples.RankingQuiz.api.dto.GuideMessage;
 import JesusDeciples.RankingQuiz.api.dto.GuideMessageBundle;
 import JesusDeciples.RankingQuiz.api.dto.MessageWrapper;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
+import JesusDeciples.RankingQuiz.api.jwt.JWTProducer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class WebSocketQuizHandler implements WebSocketHandler {
     private final Map<String, WebSocketSession> sessions = new HashMap<>();
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
+    private final JWTProducer jwtProducer;
 
     @Scheduled(fixedDelay = 1000)
     private void checkPresentState() throws IOException, InterruptedException {
@@ -139,48 +141,33 @@ public class WebSocketQuizHandler implements WebSocketHandler {
         if (message instanceof BinaryMessage) return;
 
         MessageWrapper messageWrapperFromClient = objectMapper.readValue(((TextMessage) message).getPayload(), MessageWrapper.class);
-        System.out.println("messageWrapperFromClient = " + messageWrapperFromClient);
-        if (!messageWrapperFromClient.getDataType().equals("AnswerDto")) return;
-
-        if (presentState == COMPLETED_QUIZ_SETTING) { // 퀴즈 생성 완료
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getGuide_message_not_accept_answer_data())));
-            return;
-        } else if (presentState == ON_QUIZ) {
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getAutoSubmissionMessage())));
-            return;
-        } else if (presentState == COMPLETED_QUIZ_GETTING_ANSWERED) { // 답안 수거
-            Object objectInMessage = messageWrapperFromClient.getObject();
-            AnswerDto answerDto = objectMapper.convertValue(objectInMessage, AnswerDto.class);
-
-            if (answerDto == null) {
-                // MessageWrapper에 AnswerDto가 없는 경우
-                session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                        guideMessageBundle.getGuide_message_invalid_answer_data())));
-                return;
+        String dataType = messageWrapperFromClient.getDataType();
+        switch (dataType) {
+            case "AccessToken" -> {
+                String accessToken = messageWrapperFromClient.getObject().toString();
+                Long memberId = Long.parseLong(jwtProducer.extractSubject(accessToken));
+                session.getAttributes().put("memberId", memberId);
             }
 
-            Long presentQuizId = quizDataCenter.getPresentQuizDto().getQuizId();
-            Long quizIdInAnswerDto = answerDto.getQuizId();
-            if (!presentQuizId.equals(quizIdInAnswerDto)) { // QuizId 검증
+            case "AnswerDto" -> {
+                if (presentState != COMPLETED_QUIZ_GETTING_ANSWERED) return;
+
+                Object objectInMessage = messageWrapperFromClient.getObject();
+                AnswerDto answerDto = objectMapper.convertValue(objectInMessage, AnswerDto.class);
+                if (answerDto == null) return;
+
+                Long presentQuizId = quizDataCenter.getPresentQuizDto().getQuizId();
+                Long quizIdInAnswerDto = answerDto.getQuizId();
+                if (!presentQuizId.equals(quizIdInAnswerDto)) return;
+
+                // 엑세스 토큰을 가진 세션의 경우 memberId 값이 있음
+                Long memberId = (Long) session.getAttributes().get("memberId");
+                answerDto.setMemberId(memberId);
+                quizDataCenter.loadAnswerFromUser(session.getId(), answerDto);
                 session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                        guideMessageBundle.getGuide_message_quiz_id_mismatch())));
+                        guideMessageBundle.getAnswerSubmittedMessage())));
                 return;
             }
-            // 정상적으로 답안을 받은 경우
-            quizDataCenter.loadAnswerFromUser(session.getId(), answerDto);
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getAnswerSubmittedMessage())));
-            return;
-        } else if (presentState == ON_SCORING) { // 채점 중
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getGuide_message_late_sumbssion())));
-            return;
-        } else if (presentState == COMPLETED_SCORING) { // 채점 완료
-            session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                    guideMessageBundle.getGuide_message_late_sumbssion())));
-            return;
         }
     }
 
@@ -198,10 +185,6 @@ public class WebSocketQuizHandler implements WebSocketHandler {
     TODO TextMessageHandler 구현
 
     TODO BinaryMessageHandler 구현
-
-
-    TODO switch (presentState)
-
      */
 
     @Override

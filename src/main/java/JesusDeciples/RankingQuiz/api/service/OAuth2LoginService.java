@@ -1,5 +1,6 @@
 package JesusDeciples.RankingQuiz.api.service;
 
+import JesusDeciples.RankingQuiz.api.entity.Member;
 import JesusDeciples.RankingQuiz.api.oauth.AuthTokens;
 import JesusDeciples.RankingQuiz.api.oauth.AuthTokensProducer;
 import JesusDeciples.RankingQuiz.api.oauth.OAuth2LoginParams;
@@ -16,7 +17,7 @@ public class OAuth2LoginService {
 
     public AuthTokens login(OAuth2LoginParams params) {
         OAuthUserInfoResponse oAuthUserInfoResponse = oAuthUserInfoRequestService.requestUserInfo(params);
-        Long memberId = memberService.findOrCreateMemberByEmail(oAuthUserInfoResponse.getEmail());
-        return authTokensProducer.produceAuthTokens(memberId);
+        Member member = memberService.findOrCreateMemberByEmail(oAuthUserInfoResponse.getEmail());
+        return authTokensProducer.produceAuthTokens(member);
     }
 }

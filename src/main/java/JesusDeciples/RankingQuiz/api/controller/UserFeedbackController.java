@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user-feedback")
+@CrossOrigin(origins = {"http://localhost:8081", "https://rankingquiz.rivercastleworks.site"})
 public class UserFeedbackController {
     private final UserFeedbackService userFeedbackService;
 
     @PostMapping
-    @CrossOrigin(origins = "https://rankingquiz.rivercastleworks.site")
     public void postUserFeedback(@RequestBody UserFeedbackDto[] userFeedbackDtos) throws JsonProcessingException {
         for (UserFeedbackDto dto : userFeedbackDtos)
             userFeedbackService.postFeedback(dto);

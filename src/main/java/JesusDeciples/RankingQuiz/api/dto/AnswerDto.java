@@ -10,4 +10,5 @@ public class AnswerDto {
     private String userAnswer;
     private LocalDateTime writtenAt;
     private String userName;
+    private Long memberId; // 비회원 사용자의 경우 null 값을 가지도록 long x Long o
 }

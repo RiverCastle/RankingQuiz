@@ -15,6 +15,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(webSocketHandler, "/api/ws/quiz")
-                .setAllowedOrigins("https://rankingquiz.rivercastleworks.site"); // CORS 설정
+                .setAllowedOrigins("http://localhost:8081", "https://rankingquiz.rivercastleworks.site"); // CORS 설정
     }
 }
