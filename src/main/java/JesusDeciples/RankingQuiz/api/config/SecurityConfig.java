@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/api/quiz-content").hasAuthority("ROLE_ADMIN") // 관리자만 접근 가능
                 .requestMatchers("/api/member/**").authenticated()
+                .requestMatchers("/api/quiz-results/**").authenticated()
                 .anyRequest().permitAll()
 
                 .and()
