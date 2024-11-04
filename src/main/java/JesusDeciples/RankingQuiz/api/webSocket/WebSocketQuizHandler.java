@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -78,20 +79,19 @@ public class WebSocketQuizHandler implements WebSocketHandler {
                 winner_notification.setDisplay(true);
 
                 guideMessageBundle.setWinner_notification(winner_notification);
-                TextMessage winnerAnouncementTextMessage = new TextMessage(
-                        textMessageFactory.produceTextMessage(
-                                guideMessageBundle.getWinner_notification()));
+                TextMessage winnerAnouncementTextMessage =
+                        textMessageFactory.produceTextMessage(guideMessageBundle.getWinner_notification());
 
                 for (String sessionId : sessionIds) {// QuizResult -> TextMessage 변환
                     if (sessionIdsOfParticipants.contains(sessionId)) {// 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
-                        TextMessage textMessage = new TextMessage(
-                                textMessageFactory.produceTextMessage(results.get(sessionId)));
+                        TextMessage textMessage =
+                                textMessageFactory.produceTextMessage(results.get(sessionId));
                         sessions.get(sessionId).sendMessage(textMessage);
                         sessions.get(sessionId).sendMessage(winnerAnouncementTextMessage);
                     } else {
-                        String message = textMessageFactory.produceTextMessage(
-                                guideMessageBundle.getNotParticipatedMessage());
-                        sessions.get(sessionId).sendMessage(new TextMessage(message));
+                        TextMessage message =
+                                textMessageFactory.produceTextMessage(guideMessageBundle.getNotParticipatedMessage());
+                        sessions.get(sessionId).sendMessage(message);
                     }
                 }
                 Thread.sleep(5000);
@@ -101,22 +101,22 @@ public class WebSocketQuizHandler implements WebSocketHandler {
                 // 전체 세션에 새 퀴즈 전송
                 this.presentState = nextState;
                 quizDataCenter.setNewQuizExcept(); // 새 퀴즈 생성 이전 QuizContent 제외
-                String newQuizTextMessage = // 새 퀴즈 메시지로 변환
+                TextMessage newQuizTextMessage = // 새 퀴즈 메시지로 변환
                         textMessageFactory.produceTextMessage(quizDataCenter.getPresentQuizDto());
                 Set<String> sessionIds = sessions.keySet();
                 for (String sessionId : sessionIds) // 전체 활성 참가자에게 전송
-                    sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage));
+                    sessions.get(sessionId).sendMessage(newQuizTextMessage);
                 updateQuizSystemState(ON_QUIZ);
             } else if (presentState == WAITING & nextState == ON_QUIZ_SETTING) {
                 // 대기 상태 -> 퀴즈 생성
                 // 전체 세션에 새 퀴즈 메시지 전송
                 this.presentState = nextState;
                 quizDataCenter.initiateQuiz(); // 퀴즈를 처음 시작 QuizContent 중 예외없이 임의로 출제
-                String newQuizTextMessage = // 새 퀴즈 메시지로 변환
+                TextMessage newQuizTextMessage = // 새 퀴즈 메시지로 변환
                         textMessageFactory.produceTextMessage(quizDataCenter.getPresentQuizDto());
                 Set<String> sessionIds = sessions.keySet(); // 모든 세션에게 퀴즈 전송
                 for (String sessionId : sessionIds)
-                    sessions.get(sessionId).sendMessage(new TextMessage(newQuizTextMessage));
+                    sessions.get(sessionId).sendMessage(newQuizTextMessage);
                 updateQuizSystemState(ON_QUIZ);
             } else if (presentState == ON_QUIZ_SETTING & nextState == ON_QUIZ) {
                 // 퀴즈 생성 완료 -> 퀴즈 시작
@@ -132,8 +132,7 @@ public class WebSocketQuizHandler implements WebSocketHandler {
         if (presentState == WAITING) {
             updateQuizSystemState(ON_QUIZ_SETTING);
         }
-        session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                guideMessageBundle.getPrepareMessage())));
+        session.sendMessage(textMessageFactory.produceTextMessage(guideMessageBundle.getPrepareMessage()));
     }
 
     @Override
@@ -164,8 +163,9 @@ public class WebSocketQuizHandler implements WebSocketHandler {
                 Long memberId = (Long) session.getAttributes().get("memberId");
                 answerDto.setMemberId(memberId);
                 quizDataCenter.loadAnswerFromUser(session.getId(), answerDto);
-                session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                        guideMessageBundle.getAnswerSubmittedMessage())));
+                TextMessage guideMessage =
+                        textMessageFactory.produceTextMessage(guideMessageBundle.getAnswerSubmittedMessage());
+                session.sendMessage(guideMessage);
                 return;
             }
         }
@@ -189,8 +189,8 @@ public class WebSocketQuizHandler implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        session.sendMessage(new TextMessage(textMessageFactory.produceTextMessage(
-                guideMessageBundle.getErrorMessage())));
+        session.sendMessage(textMessageFactory.produceTextMessage(
+                guideMessageBundle.getErrorMessage()));
     }
 
     @Override
