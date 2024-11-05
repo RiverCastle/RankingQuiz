@@ -70,21 +70,21 @@ public class WebSocketQuizHandler implements WebSocketHandler {
             quizDataCenterMediator.updateQuizDataCenterState(nextState);
 
             Set<String> sessionIds = sessions.keySet(); // 접속 세션 IDs
-            Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults(); // 참여자 별 퀴즈 결과
+            Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults();
             Set<String> sessionIdsOfParticipants = results.keySet(); // 퀴즈에 참여한 세션 ID
 
 
-            String winner = (quizDataCenterMediator.getQuizWinnerName() == null) ? "없습니다." : quizDataCenterMediator.getQuizWinnerName() + "님입니다.";
+            String winner = (quizDataCenterMediator.getQuizWinnerName() == null) ?
+                    "없습니다." : quizDataCenterMediator.getQuizWinnerName() + "님입니다.";
             GuideMessage winner_notification = new GuideMessage("이번 퀴즈의 우승자는 " + winner);
             winner_notification.setDisplay(true);
             guideMessageBundle.setWinner_notification(winner_notification);
             TextMessage winnerAnouncementTextMessage =
                     textMessageFactory.produceTextMessage(guideMessageBundle.getWinner_notification());
 
-
-            // 전체 세션
-            for (String sessionId : sessionIds) {
-                if (sessionIdsOfParticipants.contains(sessionId)) {// 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
+            for (String sessionId : sessionIds) {// 전체 세션
+                if (sessionIdsOfParticipants.contains(sessionId)) {
+                    // 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
                     TextMessage textMessage = // QuizResult -> TextMessage 변환
                             textMessageFactory.produceTextMessage(results.get(sessionId));
                     sessions.get(sessionId).sendMessage(textMessage);
@@ -185,13 +185,6 @@ public class WebSocketQuizHandler implements WebSocketHandler {
 
     추후에 기능 확장을 위해 이진메시지도 다뤄야하므로
     TextMessageHandler / BinaryMessageHandler를 WebSocketQuizHandler와 분리
-
-    TODO LIST
-
-    처리할 수 있는 객체 타입 Bundle을 만들고 contains로 하면 판단해서 더 다양한 메시지를 처리해보도록 하자. 현재는 AnswerDto만 처리한다.
-    TODO TextMessageHandler 구현
-
-    TODO BinaryMessageHandler 구현
      */
 
     @Override
