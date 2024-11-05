@@ -11,17 +11,22 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static JesusDeciples.RankingQuiz.api.webSocket.QuizDataCenterState.*;
+
 @Component
 @RequiredArgsConstructor
 public class QuizDataCenter {
-    @Getter
-    @Setter
+    @Getter @Setter
     private Quiz presentQuiz;
+    @Getter @Setter
+    private QuizDataCenterState state = WAITING;
+    private final Long waitingTime = 3L; // 퀴즈 수거 대기 시간
     private final QuizScoreFacade quizScoreFacade;
     private final QuizQuizContentFacade quizQuizContentFacade;
     private final Map<String, AnswerDto> savedAnswerDtos = new HashMap<>();
@@ -88,5 +93,14 @@ public class QuizDataCenter {
     }
     private void clearWinnerName() {
         this.winnerName = null;
+    }
+
+    public void clearDataCenter() {
+        this.presentQuiz = null;
+        this.state = WAITING;
+        clearAnswers();
+        clearResults();
+        clearWinnerName();
+        this.savedAnswerDtos.clear();
     }
 }
