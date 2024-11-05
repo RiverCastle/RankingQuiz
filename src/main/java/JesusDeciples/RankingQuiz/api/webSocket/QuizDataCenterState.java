@@ -1,6 +1,6 @@
 package JesusDeciples.RankingQuiz.api.webSocket;
 
-public enum QuizSystemState {
+public enum QuizDataCenterState {
     ON_QUIZ_SETTING,
     COMPLETED_QUIZ_SETTING,
     ON_QUIZ,
