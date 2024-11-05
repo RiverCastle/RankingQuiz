@@ -28,9 +28,6 @@ public class QuizDataCenterMediator {
         } else if (presentState == COMPLETED_QUIZ_GETTING_ANSWERED & nextState == ON_SCORING) {
             quizDataCenter.setState(nextState);
             quizDataCenter.score();
-            /*
-            응답을 보내야하는데?
-             */
             updateQuizDataCenterState(COMPLETED_SCORING);
         } else if (presentState == ON_SCORING & nextState == COMPLETED_SCORING) {
             quizDataCenter.setState(nextState);
