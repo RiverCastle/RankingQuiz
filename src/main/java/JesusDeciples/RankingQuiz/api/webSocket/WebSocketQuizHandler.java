@@ -5,6 +5,7 @@ import JesusDeciples.RankingQuiz.api.dto.GuideMessageBundle;
 import JesusDeciples.RankingQuiz.api.dto.MessageWrapper;
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,15 +13,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 
-import static JesusDeciples.RankingQuiz.api.webSocket.QuizDataCenterState.*;
 
 @Component
 @RequiredArgsConstructor
 public class WebSocketQuizHandler implements WebSocketHandler {
-    private final Long waitingTime = 3L; // 퀴즈 수거 대기 시간
+    private final Long waitingTime = 3000L;
     private final CustomTextMessageFactory textMessageFactory;
     private final QuizDataCenterMediator quizDataCenterMediator;
     private final Map<String, WebSocketSession> sessions = new HashMap<>();
@@ -30,117 +29,37 @@ public class WebSocketQuizHandler implements WebSocketHandler {
     private final AnswerDtoMessageHandler answerDtoMessageHandler;
 
     @Scheduled(fixedDelay = 1000)
-    private void checkPresentState() throws IOException, InterruptedException {
-        QuizDataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
-        switch (presentState) {
-            case ON_QUIZ -> {
-                LocalDateTime quizFinishedAt = quizDataCenterMediator.getPresentQuizDto().getFinishedAt().minusSeconds(2L);
-                LocalDateTime now = LocalDateTime.now();
-
-                if (now.isAfter(quizFinishedAt)) {
-                    updateQuizSystemState(COMPLETED_QUIZ_GETTING_ANSWERED);
-                }
-                break;
-            }
-            case COMPLETED_QUIZ_GETTING_ANSWERED -> {
-                LocalDateTime collectingAnswersFinishedAt = quizDataCenterMediator.getPresentQuizDto().getFinishedAt().plusSeconds(waitingTime);
-                LocalDateTime now = LocalDateTime.now();
-                if (now.isAfter(collectingAnswersFinishedAt)) {
-                    updateQuizSystemState(ON_SCORING);
-                }
-                break;
-            }
-            case COMPLETED_SCORING -> {
-                updateQuizSystemState(COMPLETED_SCORING);
-            }
-        }
-    }
-
-    public void updateQuizSystemState(QuizDataCenterState nextState) throws IOException, InterruptedException {
-        QuizDataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
-
-        if (presentState == ON_QUIZ & nextState == COMPLETED_QUIZ_GETTING_ANSWERED) {
-            // 퀴즈 중 -> 퀴즈 종료, 답안 수거로 상태 변경
-            quizDataCenterMediator.updateQuizDataCenterState(nextState);
-        } else if (presentState == COMPLETED_QUIZ_GETTING_ANSWERED & nextState == ON_SCORING) {
-            // 퀴즈 종료, 답안 수거 -> 채점 시작
-            quizDataCenterMediator.updateQuizDataCenterState(nextState);
-        } else if (nextState == COMPLETED_SCORING) {
-            // 채점 시작 -> 채점 종료
-            quizDataCenterMediator.updateQuizDataCenterState(nextState);
-
-            Set<String> sessionIds = sessions.keySet(); // 접속 세션 IDs
-            Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults();
-            Set<String> sessionIdsOfParticipants = results.keySet(); // 퀴즈에 참여한 세션 ID
-
-
-            String winner = (quizDataCenterMediator.getQuizWinnerName() == null) ?
-                    "없습니다." : quizDataCenterMediator.getQuizWinnerName() + "님입니다.";
-            GuideMessage winner_notification = new GuideMessage("이번 퀴즈의 우승자는 " + winner);
-            winner_notification.setDisplay(true);
-            guideMessageBundle.setWinner_notification(winner_notification);
-            TextMessage winnerAnouncementTextMessage =
-                    textMessageFactory.produceTextMessage(guideMessageBundle.getWinner_notification());
-
-            for (String sessionId : sessionIds) {// 전체 세션
-                if (sessionIdsOfParticipants.contains(sessionId)) {
-                    // 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
-                    TextMessage textMessage = // QuizResult -> TextMessage 변환
-                            textMessageFactory.produceTextMessage(results.get(sessionId));
-                    sessions.get(sessionId).sendMessage(textMessage);
-                    sessions.get(sessionId).sendMessage(winnerAnouncementTextMessage);
-                } else {
-                    GuideMessage guideMessage = guideMessageBundle.getNotParticipatedMessage();
-                    guideMessage.setDisplay(true);
-                    TextMessage message =
-                            textMessageFactory.produceTextMessage(guideMessage);
-                    sessions.get(sessionId).sendMessage(message);
-                }
-            }
-            Thread.sleep(3000);
-            updateQuizSystemState(ON_QUIZ_SETTING);
-        } else if (presentState == COMPLETED_SCORING & nextState == ON_QUIZ_SETTING) {
-            // 채점 종료 -> 새 퀴즈 생성
-            // 전체 세션에 새 퀴즈 전송
-            quizDataCenterMediator.updateQuizDataCenterState(nextState);
+    private void abcd() throws IOException, InterruptedException {
+        DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
+        if (presentState instanceof COMPLETE_SCORE) {
+            sendQuizResultMessage();
+            Thread.sleep(waitingTime);
+            quizDataCenterMediator.updateDataCenterStateAndAction(new INIT_NEXT_QUIZ());
+        } else if (presentState instanceof INIT_QUIZ || presentState instanceof INIT_NEXT_QUIZ) {
+            quizDataCenterMediator.updateDataCenterStateAndAction(new ON_QUIZ());
+            // 퀴즈 메시지 전송
             QuizDto quizDto = quizDataCenterMediator.getPresentQuizDto();
-            TextMessage newQuizTextMessage = // 새 퀴즈 메시지로 변환
-                    textMessageFactory.produceTextMessage(quizDto);
-
-            Set<String> sessionIds = sessions.keySet();
-            for (String sessionId : sessionIds) // 전체 활성 참가자에게 전송
-                sessions.get(sessionId).sendMessage(newQuizTextMessage);
-            quizDataCenterMediator.updateQuizDataCenterState(ON_QUIZ);
-        } else if (presentState == WAITING & nextState == ON_QUIZ_SETTING) {
-            // 대기 -> 퀴즈 생성
-            // 전체 세션에 새 퀴즈 메시지 전송
-            quizDataCenterMediator.updateQuizDataCenterState(nextState);
-            QuizDto quizDto = quizDataCenterMediator.getPresentQuizDto();
-            TextMessage newQuizTextMessage = // 새 퀴즈 메시지로 변환
-                    textMessageFactory.produceTextMessage(quizDto);
-            sendMessageToAllSessions(newQuizTextMessage);
-            quizDataCenterMediator.updateQuizDataCenterState(ON_QUIZ);
-        } else if (presentState == ON_QUIZ_SETTING & nextState == ON_QUIZ) {
-            // 퀴즈 생성 완료 -> 퀴즈 시작
-            quizDataCenterMediator.updateQuizDataCenterState(nextState);
+            TextMessage quizMessage = textMessageFactory.produceTextMessage(quizDto);
+            sendMessageToAllSessions(quizMessage);
+        } else { //COMPLETE_QUIZ, InIt SCORE, INIT_SCORE, ONQUIZ, WAITING
+            quizDataCenterMediator.updateDataCenterStateAndAction(presentState);
         }
-
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws IOException, InterruptedException {
-        QuizDataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
+    public void afterConnectionEstablished(WebSocketSession session) throws IOException {
+        DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
         sessions.put(session.getId(), session);
         // 대기상태 중 새 세션
-        if (presentState == WAITING) {
-            updateQuizSystemState(ON_QUIZ_SETTING);
+        if (presentState instanceof WAITING) {
+            quizDataCenterMediator.updateDataCenterStateAndAction(new INIT_QUIZ());
         }
         session.sendMessage(textMessageFactory.produceTextMessage(guideMessageBundle.getPrepareMessage()));
     }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        QuizDataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
+        DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
         if (message instanceof BinaryMessage) return;
 
         MessageWrapper messageWrapperFromClient = objectMapper.readValue(((TextMessage) message).getPayload(), MessageWrapper.class);
@@ -155,7 +74,7 @@ public class WebSocketQuizHandler implements WebSocketHandler {
             }
 
             case "AnswerDto" -> {
-                if (presentState != COMPLETED_QUIZ_GETTING_ANSWERED) return;
+                if (!(presentState instanceof COMPLETE_QUIZ)) return;
                 Long memberId = (Long) session.getAttributes().get("memberId");
                 answerDtoMessageHandler.handleAnswerDtoMessageObject(session.getId(), memberId, objectInMessage);
                 TextMessage guideMessage =
@@ -195,15 +114,44 @@ public class WebSocketQuizHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        QuizDataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
         sessions.remove(session.getId());
         if (sessions.isEmpty()) {
-            quizDataCenterMediator.updateQuizDataCenterState(WAITING);
+            quizDataCenterMediator.updateDataCenterStateAndAction(new WAITING());
         }
     }
 
     @Override
     public boolean supportsPartialMessages() {
         return false;
+    }
+
+    private void sendQuizResultMessage() throws IOException {
+        Set<String> sessionIds = sessions.keySet(); // 접속 세션 IDs
+        Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults();
+        Set<String> sessionIdsOfParticipants = results.keySet(); // 퀴즈에 참여한 세션 ID
+
+        String winner = (quizDataCenterMediator.getQuizWinnerName() == null) ?
+                "없습니다." : quizDataCenterMediator.getQuizWinnerName() + "님입니다.";
+        GuideMessage winner_notification = new GuideMessage("이번 퀴즈의 우승자는 " + winner);
+        winner_notification.setDisplay(true);
+        guideMessageBundle.setWinner_notification(winner_notification);
+        TextMessage winnerAnouncementTextMessage =
+                textMessageFactory.produceTextMessage(guideMessageBundle.getWinner_notification());
+
+        for (String sessionId : sessionIds) {// 전체 세션
+            if (sessionIdsOfParticipants.contains(sessionId)) {
+                // 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
+                TextMessage textMessage = // QuizResult -> TextMessage 변환
+                        textMessageFactory.produceTextMessage(results.get(sessionId));
+                sessions.get(sessionId).sendMessage(textMessage);
+                sessions.get(sessionId).sendMessage(winnerAnouncementTextMessage);
+            } else {
+                GuideMessage guideMessage = guideMessageBundle.getNotParticipatedMessage();
+                guideMessage.setDisplay(true);
+                TextMessage message =
+                        textMessageFactory.produceTextMessage(guideMessage);
+                sessions.get(sessionId).sendMessage(message);
+            }
+        }
     }
 }
