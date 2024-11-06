@@ -19,8 +19,9 @@ public class QuizDataCenterMediator {
         return quizDataCenter.getPresentState();
     }
 
-    public void renewalMethod(DataCenterState dataCenterState) {
-        dataCenterState.handle(quizDataCenter);
+    public void updateDataCenterStateAndAction(DataCenterState dataCenterState) {
+        quizDataCenter.setPresentState(dataCenterState);
+        quizDataCenter.handle();
     }
 
     public Map<String, QuizResultDto> getQuizResults() {
