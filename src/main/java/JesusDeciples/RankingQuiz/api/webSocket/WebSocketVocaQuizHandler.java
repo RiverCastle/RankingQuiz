@@ -18,7 +18,7 @@ import java.util.*;
 
 @Component
 @RequiredArgsConstructor
-public class WebSocketQuizHandler implements WebSocketHandler {
+public class WebSocketVocaQuizHandler implements WebSocketHandler {
     private final Long waitingTime = 3000L;
     private final CustomTextMessageFactory textMessageFactory;
     private final VocaQuizDataCenterMediator vocaQuizDataCenterMediator;
@@ -74,7 +74,7 @@ public class WebSocketQuizHandler implements WebSocketHandler {
             }
 
             case "AnswerDto" -> {
-                if (!(presentState instanceof COMPLETE_QUIZ)) return;
+                if (!(presentState instanceof COMPLETE_QUIZ || presentState instanceof ON_QUIZ)) return;
                 Long memberId = (Long) session.getAttributes().get("memberId");
                 answerDtoMessageHandler.handleAnswerDtoMessageObject(session.getId(), memberId, objectInMessage);
                 TextMessage guideMessage =

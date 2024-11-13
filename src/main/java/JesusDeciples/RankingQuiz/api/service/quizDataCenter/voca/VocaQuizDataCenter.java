@@ -1,12 +1,14 @@
-package JesusDeciples.RankingQuiz.api.service.quizDataCenter;
+package JesusDeciples.RankingQuiz.api.service.quizDataCenter.voca;
 
 import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizContentDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
 import JesusDeciples.RankingQuiz.api.entity.quiz.Quiz;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.facade.QuizQuizContentFacade;
 import JesusDeciples.RankingQuiz.api.facade.QuizScoreFacade;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.QuizDataCenter;
 import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterState;
 import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.WAITING;
 import lombok.Getter;
@@ -22,7 +24,8 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class VocaQuizDataCenter {
+public class VocaQuizDataCenter implements QuizDataCenter {
+    private final QuizCategory category = QuizCategory.voca;
     @Getter @Setter
     private Quiz presentQuiz;
     @Getter @Setter
@@ -65,7 +68,7 @@ public class VocaQuizDataCenter {
 
     public void setNewQuizExcept() {
         this.presentQuiz = // 기존 퀴즈 Content를 제외한 Quiz Content로 새 퀴즈 생성 및 할당
-                quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId());
+                quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId(), category);
         clearResults();
         clearAnswers();
     }
@@ -87,7 +90,7 @@ public class VocaQuizDataCenter {
     }
 
     public void initiateQuiz() {
-        this.presentQuiz = quizQuizContentFacade.setNewQuiz();
+        this.presentQuiz = quizQuizContentFacade.setNewQuiz(category);
     }
 
     public QuizDto getPresentQuizDto() {
