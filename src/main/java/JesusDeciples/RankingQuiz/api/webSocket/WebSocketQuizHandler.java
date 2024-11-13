@@ -21,7 +21,7 @@ import java.util.*;
 public class WebSocketQuizHandler implements WebSocketHandler {
     private final Long waitingTime = 3000L;
     private final CustomTextMessageFactory textMessageFactory;
-    private final QuizDataCenterMediator quizDataCenterMediator;
+    private final VocaQuizDataCenterMediator vocaQuizDataCenterMediator;
     private final Map<String, WebSocketSession> sessions = new HashMap<>();
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
@@ -30,36 +30,36 @@ public class WebSocketQuizHandler implements WebSocketHandler {
 
     @Scheduled(fixedDelay = 1000)
     private void abcd() throws IOException, InterruptedException {
-        DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
+        DataCenterState presentState = vocaQuizDataCenterMediator.getQuizDataCenterState();
         if (presentState instanceof COMPLETE_SCORE) {
             sendQuizResultMessage();
             Thread.sleep(waitingTime);
-            quizDataCenterMediator.updateDataCenterStateAndAction(new INIT_NEXT_QUIZ());
+            vocaQuizDataCenterMediator.updateDataCenterStateAndAction(new INIT_NEXT_QUIZ());
         } else if (presentState instanceof INIT_QUIZ || presentState instanceof INIT_NEXT_QUIZ) {
-            quizDataCenterMediator.updateDataCenterStateAndAction(new ON_QUIZ());
+            vocaQuizDataCenterMediator.updateDataCenterStateAndAction(new ON_QUIZ());
             // 퀴즈 메시지 전송
-            QuizDto quizDto = quizDataCenterMediator.getPresentQuizDto();
+            QuizDto quizDto = vocaQuizDataCenterMediator.getPresentQuizDto();
             TextMessage quizMessage = textMessageFactory.produceTextMessage(quizDto);
             sendMessageToAllSessions(quizMessage);
         } else { //COMPLETE_QUIZ, InIt SCORE, INIT_SCORE, ONQUIZ, WAITING
-            quizDataCenterMediator.updateDataCenterStateAndAction(presentState);
+            vocaQuizDataCenterMediator.updateDataCenterStateAndAction(presentState);
         }
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-        DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
+        DataCenterState presentState = vocaQuizDataCenterMediator.getQuizDataCenterState();
         sessions.put(session.getId(), session);
         // 대기상태 중 새 세션
         if (presentState instanceof WAITING) {
-            quizDataCenterMediator.updateDataCenterStateAndAction(new INIT_QUIZ());
+            vocaQuizDataCenterMediator.updateDataCenterStateAndAction(new INIT_QUIZ());
         }
         session.sendMessage(textMessageFactory.produceTextMessage(guideMessageBundle.getPrepareMessage()));
     }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-        DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState();
+        DataCenterState presentState = vocaQuizDataCenterMediator.getQuizDataCenterState();
         if (message instanceof BinaryMessage) return;
 
         MessageWrapper messageWrapperFromClient = objectMapper.readValue(((TextMessage) message).getPayload(), MessageWrapper.class);
@@ -116,7 +116,7 @@ public class WebSocketQuizHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
         sessions.remove(session.getId());
         if (sessions.isEmpty()) {
-            quizDataCenterMediator.updateDataCenterStateAndAction(new WAITING());
+            vocaQuizDataCenterMediator.updateDataCenterStateAndAction(new WAITING());
         }
     }
 
@@ -127,11 +127,11 @@ public class WebSocketQuizHandler implements WebSocketHandler {
 
     private void sendQuizResultMessage() throws IOException {
         Set<String> sessionIds = sessions.keySet(); // 접속 세션 IDs
-        Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults();
+        Map<String, QuizResultDto> results = vocaQuizDataCenterMediator.getQuizResults();
         Set<String> sessionIdsOfParticipants = results.keySet(); // 퀴즈에 참여한 세션 ID
 
-        String winner = (quizDataCenterMediator.getQuizWinnerName() == null) ?
-                "없습니다." : quizDataCenterMediator.getQuizWinnerName() + "님입니다.";
+        String winner = (vocaQuizDataCenterMediator.getQuizWinnerName() == null) ?
+                "없습니다." : vocaQuizDataCenterMediator.getQuizWinnerName() + "님입니다.";
         GuideMessage winner_notification = new GuideMessage("이번 퀴즈의 우승자는 " + winner);
         winner_notification.setDisplay(true);
         guideMessageBundle.setWinner_notification(winner_notification);
