@@ -26,7 +26,7 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
     private final AccessTokenMessageHandler accessTokenMessageHandler;
-    private final AnswerDtoMessageHandler answerDtoMessageHandler;
+    private final VocaQuizAnswerDtoMessageHandler answerDtoMessageHandler;
 
     @Scheduled(fixedDelay = 1000)
     private void abcd() throws IOException, InterruptedException {
