@@ -1,4 +1,4 @@
-package JesusDeciples.RankingQuiz.api.webSocket;
+package JesusDeciples.RankingQuiz.api.service.quizDataCenter;
 
 import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizContentDto;

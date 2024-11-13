@@ -1,6 +1,7 @@
 package JesusDeciples.RankingQuiz.api.webSocket;
 
 import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.QuizDataCenter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

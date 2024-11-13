@@ -1,6 +1,6 @@
 package JesusDeciples.RankingQuiz.api.service.quizDataCenter.state;
 
-import JesusDeciples.RankingQuiz.api.webSocket.QuizDataCenter;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.QuizDataCenter;
 
 public class INIT_QUIZ implements DataCenterState{
     @Override
