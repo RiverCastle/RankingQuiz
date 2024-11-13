@@ -1,27 +1,36 @@
-package JesusDeciples.RankingQuiz.api.webSocket;
+package JesusDeciples.RankingQuiz.api.service.quizDataCenter.voca;
 
 import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizContentDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
 import JesusDeciples.RankingQuiz.api.entity.quiz.Quiz;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.facade.QuizQuizContentFacade;
 import JesusDeciples.RankingQuiz.api.facade.QuizScoreFacade;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.QuizDataCenter;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterState;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.WAITING;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+
 @Component
 @RequiredArgsConstructor
-public class QuizDataCenter {
-    @Getter
-    @Setter
+public class VocaQuizDataCenter implements QuizDataCenter {
+    private final QuizCategory category = QuizCategory.voca;
+    @Getter @Setter
     private Quiz presentQuiz;
+    @Getter @Setter
+    private DataCenterState presentState = new WAITING();
+    private final Long waitingTime = 3L; // 퀴즈 수거 대기 시간
     private final QuizScoreFacade quizScoreFacade;
     private final QuizQuizContentFacade quizQuizContentFacade;
     private final Map<String, AnswerDto> savedAnswerDtos = new HashMap<>();
@@ -30,7 +39,11 @@ public class QuizDataCenter {
     @Getter
     private String winnerName;
 
-    public QuizResultDto getQuizResult(String sessionId) {
+    public void handle() {
+        this.presentState.handle(this);
+    }
+
+    private QuizResultDto getQuizResult(String sessionId) {
         if (savedAnswerDtos.containsKey(sessionId)) {
             AnswerDto answerDto = savedAnswerDtos.get(sessionId);
             return quizScoreFacade.score(presentQuiz.getId(), answerDto);
@@ -38,7 +51,7 @@ public class QuizDataCenter {
         return null;
     }
 
-    protected void loadAnswerFromUser(String sessionId, AnswerDto answerDto) {
+    public void loadAnswerFromUser(String sessionId, AnswerDto answerDto) {
         savedAnswerDtos.put(sessionId, answerDto);
     }
 
@@ -54,8 +67,10 @@ public class QuizDataCenter {
     }
 
     public void setNewQuizExcept() {
-        Quiz newQuiz = quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId());
-        this.presentQuiz = newQuiz;
+        this.presentQuiz = // 기존 퀴즈 Content를 제외한 Quiz Content로 새 퀴즈 생성 및 할당
+                quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId(), category);
+        clearResults();
+        clearAnswers();
     }
 
     public void score() {
@@ -75,7 +90,7 @@ public class QuizDataCenter {
     }
 
     public void initiateQuiz() {
-        this.presentQuiz = quizQuizContentFacade.setNewQuiz();
+        this.presentQuiz = quizQuizContentFacade.setNewQuiz(category);
     }
 
     public QuizDto getPresentQuizDto() {
@@ -88,5 +103,13 @@ public class QuizDataCenter {
     }
     private void clearWinnerName() {
         this.winnerName = null;
+    }
+
+    public void clearDataCenter() {
+        this.presentQuiz = null;
+        this.presentState = new WAITING();
+        clearAnswers();
+        clearResults();
+        clearWinnerName();
     }
 }
