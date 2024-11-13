@@ -22,7 +22,7 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class QuizDataCenter {
+public class VocaQuizDataCenter {
     @Getter @Setter
     private Quiz presentQuiz;
     @Getter @Setter
