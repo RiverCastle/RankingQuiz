@@ -5,6 +5,7 @@ import JesusDeciples.RankingQuiz.api.dto.request.QuizContentCreateDto;
 import JesusDeciples.RankingQuiz.api.entity.quizContent.MultipleChoiceQuizContent;
 import JesusDeciples.RankingQuiz.api.entity.quizContent.QuizContent;
 import JesusDeciples.RankingQuiz.api.entity.quizContent.ShortAnswerQuizContent;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.repository.MultipleChoiceQuizContentRepository;
 import JesusDeciples.RankingQuiz.api.repository.QuizContentRepository;
 import JesusDeciples.RankingQuiz.api.repository.ShortAnswerQuizContentRepository;
@@ -34,6 +35,7 @@ public class QuizContentServiceImpl implements QuizContentService {
                 entity.setStatement(dto.getStatement());
                 entity.setAnswer(dto.getAnswer());
                 entity.setTimeLimit(dto.getTimeLimit());
+                entity.setCategory(dto.getCategory());
                 multipleChoiceQuizContentRepository.save(entity);
                 quizContentRepository.save(entity);
             }
@@ -50,7 +52,7 @@ public class QuizContentServiceImpl implements QuizContentService {
     }
 
     @Override
-    public QuizContent getQuizContentExcept(Long presentQuizContentId) {
+    public QuizContent getQuizContentExcept(Long presentQuizContentId, QuizCategory category) {
         long max = quizContentRepository.findMaxId();
         long min = quizContentRepository.findMinId();
         boolean found = false;
@@ -58,7 +60,7 @@ public class QuizContentServiceImpl implements QuizContentService {
         while (!found) {
             Long randomId = new Random().nextLong(min, max);
             if (randomId.equals(presentQuizContentId)) continue;
-            Optional<QuizContent> optional = quizContentRepository.findById(randomId);
+            Optional<QuizContent> optional = quizContentRepository.findByIdAndCategory(randomId, category);
 //            TODO 퀴즈 타입에 따라 Fetch join을 걸어줘야함. 일단 보류
             if (optional.isPresent()) return optional.get();
         }
@@ -66,7 +68,7 @@ public class QuizContentServiceImpl implements QuizContentService {
     }
 
     @Override
-    public QuizContent getRandomQuizContent() {
+    public QuizContent getRandomQuizContent(QuizCategory category) {
         long max = quizContentRepository.findMaxId();
         long min = quizContentRepository.findMinId();
 
@@ -74,7 +76,7 @@ public class QuizContentServiceImpl implements QuizContentService {
         int count = 0;
         while (!found) {
             Long randomId = new Random().nextLong(min, max + 1);
-            Optional<QuizContent> optional = quizContentRepository.findById(randomId);
+            Optional<QuizContent> optional = quizContentRepository.findByIdAndCategory(randomId, category);
             if (!optional.isEmpty()) return optional.get();
             count++;
             if (count > 10) found = true;

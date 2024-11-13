@@ -1,5 +1,6 @@
 package JesusDeciples.RankingQuiz.api.entity.quizContent;
 
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,4 +13,6 @@ public class QuizContent {
     private String statement;
     private String answer;
     private Integer timeLimit;
+    @Enumerated(EnumType.STRING)
+    private QuizCategory category;
 }
