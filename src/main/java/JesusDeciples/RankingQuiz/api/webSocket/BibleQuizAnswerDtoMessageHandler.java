@@ -1,7 +1,7 @@
 package JesusDeciples.RankingQuiz.api.webSocket;
 
 import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
-import JesusDeciples.RankingQuiz.api.service.quizDataCenter.voca.VocaQuizDataCenter;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.bible.BibleQuizDataCenter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,12 +10,12 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class AnswerDtoMessageHandler {
+public class BibleQuizAnswerDtoMessageHandler {
     private final ObjectMapper objectMapper;
-    private final VocaQuizDataCenter vocaQuizDataCenter;
+    private final BibleQuizDataCenter quizDataCenter;
 
     public void handleAnswerDtoMessageObject(String sessionId, Long memberId, Object objectInMessage) {
-        Long presentQuizId = vocaQuizDataCenter.getPresentQuizDto().getQuizId();
+        Long presentQuizId = quizDataCenter.getPresentQuizDto().getQuizId();
         AnswerDto answerDto = objectMapper.convertValue(objectInMessage, AnswerDto.class);
         Long quizIdInAnswerDto = answerDto.getQuizId();
         answerDto.setWrittenAt(LocalDateTime.now());
@@ -23,8 +23,6 @@ public class AnswerDtoMessageHandler {
 
         // 엑세스 토큰을 가진 세션의 경우 memberId 값이 있음
         answerDto.setMemberId(memberId);
-        vocaQuizDataCenter.loadAnswerFromUser(sessionId, answerDto);
+        quizDataCenter.loadAnswerFromUser(sessionId, answerDto);
     }
-
-
 }
