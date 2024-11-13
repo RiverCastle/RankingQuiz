@@ -1,4 +1,4 @@
-package JesusDeciples.RankingQuiz.api.service.quizDataCenter;
+package JesusDeciples.RankingQuiz.api.service.quizDataCenter.state;
 
 import JesusDeciples.RankingQuiz.api.webSocket.QuizDataCenter;
 

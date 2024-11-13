@@ -5,7 +5,7 @@ import JesusDeciples.RankingQuiz.api.dto.GuideMessageBundle;
 import JesusDeciples.RankingQuiz.api.dto.MessageWrapper;
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
-import JesusDeciples.RankingQuiz.api.service.quizDataCenter.*;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

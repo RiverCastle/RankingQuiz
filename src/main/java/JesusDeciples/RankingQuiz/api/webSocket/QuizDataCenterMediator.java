@@ -2,7 +2,7 @@ package JesusDeciples.RankingQuiz.api.webSocket;
 
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
-import JesusDeciples.RankingQuiz.api.service.quizDataCenter.DataCenterState;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
