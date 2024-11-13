@@ -1,13 +1,13 @@
 package JesusDeciples.RankingQuiz.api.service.quizDataCenter.state;
 
-import JesusDeciples.RankingQuiz.api.service.quizDataCenter.VocaQuizDataCenter;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.QuizDataCenter;
 
 public class WAITING implements DataCenterState {
     @Override
-    public void handle(VocaQuizDataCenter vocaQuizDataCenter) {
-        if (!(vocaQuizDataCenter.getPresentState() instanceof WAITING)) {
-            vocaQuizDataCenter.setPresentState(this);
-            vocaQuizDataCenter.clearDataCenter();
+    public void handle(QuizDataCenter quizDataCenter) {
+        if (!(quizDataCenter.getPresentState() instanceof WAITING)) {
+            quizDataCenter.setPresentState(this);
+            quizDataCenter.clearDataCenter();
         }
         /*
         상태 업데이트 없음

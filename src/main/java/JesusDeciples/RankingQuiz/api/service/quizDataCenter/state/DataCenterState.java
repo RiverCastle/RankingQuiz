@@ -1,7 +1,7 @@
 package JesusDeciples.RankingQuiz.api.service.quizDataCenter.state;
 
-import JesusDeciples.RankingQuiz.api.service.quizDataCenter.VocaQuizDataCenter;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.QuizDataCenter;
 
 public interface DataCenterState {
-    void handle(VocaQuizDataCenter vocaQuizDataCenter);
+    void handle(QuizDataCenter quizDataCenter);
 }
