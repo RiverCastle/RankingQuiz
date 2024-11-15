@@ -1,4 +1,4 @@
-package JesusDeciples.RankingQuiz.api.webSocket;
+package JesusDeciples.RankingQuiz.api.webSocket.messageHandler;
 
 import JesusDeciples.RankingQuiz.api.jwt.JWTProducer;
 import lombok.RequiredArgsConstructor;
