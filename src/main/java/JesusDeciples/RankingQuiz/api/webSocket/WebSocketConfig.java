@@ -1,5 +1,7 @@
 package JesusDeciples.RankingQuiz.api.webSocket;
 
+import JesusDeciples.RankingQuiz.api.webSocket.messageHandler.WebSocketBibleQuizHandler;
+import JesusDeciples.RankingQuiz.api.webSocket.messageHandler.WebSocketVocaQuizHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
