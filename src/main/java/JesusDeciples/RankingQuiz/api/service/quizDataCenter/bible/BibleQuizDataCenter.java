@@ -23,10 +23,9 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class BibleQuizDataCenter implements QuizDataCenter {
-    private final QuizCategory category = QuizCategory.bible;
-    @Getter
-    @Setter
+public class BibleQuizDataCenter extends QuizDataCenter {
+    private final QuizCategory category = QuizCategory.BIBLE;
+    @Getter @Setter
     private Quiz presentQuiz;
     @Getter @Setter
     private DataCenterState presentState = new WAITING();
@@ -67,8 +66,7 @@ public class BibleQuizDataCenter implements QuizDataCenter {
     }
 
     public void setNewQuizExcept() {
-        this.presentQuiz = // 기존 퀴즈 Content를 제외한 Quiz Content로 새 퀴즈 생성 및 할당
-                quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId(), category);
+        setPresentQuiz(quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId(), category));
         clearResults();
         clearAnswers();
     }
@@ -90,7 +88,7 @@ public class BibleQuizDataCenter implements QuizDataCenter {
     }
 
     public void initiateQuiz() {
-        this.presentQuiz = quizQuizContentFacade.setNewQuiz(category);
+        setPresentQuiz(quizQuizContentFacade.setNewQuiz(category));
     }
 
     public QuizDto getPresentQuizDto() {
