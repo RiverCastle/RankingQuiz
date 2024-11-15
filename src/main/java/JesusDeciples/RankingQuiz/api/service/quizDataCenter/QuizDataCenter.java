@@ -7,16 +7,16 @@ import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterStat
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public interface QuizDataCenter {
-    LocalDateTime getPresentQuizFinishedAt();
-    void setPresentState(DataCenterState state);
-    DataCenterState getPresentState();
-    void clearDataCenter();
-    void score();
-    void initiateQuiz();
-    void setNewQuizExcept();
-    void handle();
-    Map<String, QuizResultDto> getResults();
-    QuizDto getPresentQuizDto();
-    String getWinnerName();
+public abstract class QuizDataCenter {
+    public abstract LocalDateTime getPresentQuizFinishedAt();
+    public abstract void setPresentState(DataCenterState state);
+    public abstract DataCenterState getPresentState();
+    public abstract void clearDataCenter();
+    public abstract void score();
+    public abstract void initiateQuiz();
+    public abstract void setNewQuizExcept();
+    public abstract void handle();
+    public abstract Map<String, QuizResultDto> getResults();
+    public abstract QuizDto getPresentQuizDto();
+    public abstract String getWinnerName();
 }
