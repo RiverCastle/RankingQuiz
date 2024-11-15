@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 
 import static JesusDeciples.RankingQuiz.api.dto.QuizType.SHORT_ANSWER_WRITING;
 
@@ -53,35 +51,13 @@ public class QuizContentServiceImpl implements QuizContentService {
 
     @Override
     public QuizContent getQuizContentExcept(Long presentQuizContentId, QuizCategory category) {
-        long max = quizContentRepository.findMaxId();
-        long min = quizContentRepository.findMinId();
-        boolean found = false;
-
-        while (!found) {
-            Long randomId = new Random().nextLong(min, max);
-            if (randomId.equals(presentQuizContentId)) continue;
-            Optional<QuizContent> optional = quizContentRepository.findByIdAndCategory(randomId, category);
-//            TODO 퀴즈 타입에 따라 Fetch join을 걸어줘야함. 일단 보류
-            if (optional.isPresent()) return optional.get();
-        }
-        return null;
+        return quizContentRepository.findRandomByIdNotAndCategory(presentQuizContentId, category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
+        //TODO 퀴즈 타입에 따라 Fetch join을 걸어줘야함. 일단 보류
     }
 
     @Override
     public QuizContent getRandomQuizContent(QuizCategory category) {
-        long max = quizContentRepository.findMaxId();
-        long min = quizContentRepository.findMinId();
-
-        boolean found = false;
-        int count = 0;
-        while (!found) {
-            Long randomId = new Random().nextLong(min, max + 1);
-            Optional<QuizContent> optional = quizContentRepository.findByIdAndCategory(randomId, category);
-            if (!optional.isEmpty()) return optional.get();
-            count++;
-            if (count > 10) found = true;
-        }
-        return null;
+        return quizContentRepository.findRandomByCategory(category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
     }
 }
 

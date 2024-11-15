@@ -24,8 +24,8 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class VocaQuizDataCenter implements QuizDataCenter {
-    private final QuizCategory category = QuizCategory.voca;
+public class VocaQuizDataCenter extends QuizDataCenter {
+    private final QuizCategory category = QuizCategory.ENG_VOCA;
     @Getter @Setter
     private Quiz presentQuiz;
     @Getter @Setter
@@ -67,8 +67,8 @@ public class VocaQuizDataCenter implements QuizDataCenter {
     }
 
     public void setNewQuizExcept() {
-        this.presentQuiz = // 기존 퀴즈 Content를 제외한 Quiz Content로 새 퀴즈 생성 및 할당
-                quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId(), category);
+        setPresentQuiz(quizQuizContentFacade.setNewQuizExcept(presentQuiz.getQuizContent().getId(), category));
+        // 기존 퀴즈 Content를 제외한 Quiz Content로 새 퀴즈 생성 및 할당
         clearResults();
         clearAnswers();
     }
@@ -90,7 +90,8 @@ public class VocaQuizDataCenter implements QuizDataCenter {
     }
 
     public void initiateQuiz() {
-        this.presentQuiz = quizQuizContentFacade.setNewQuiz(category);
+        setPresentQuiz(quizQuizContentFacade.setNewQuiz(category));
+        System.out.println("presentQuiz = " + presentQuiz);
     }
 
     public QuizDto getPresentQuizDto() {

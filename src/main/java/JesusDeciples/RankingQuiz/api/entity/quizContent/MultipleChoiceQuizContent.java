@@ -10,9 +10,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 @Entity
 public class MultipleChoiceQuizContent extends QuizContent {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> options;
 }
