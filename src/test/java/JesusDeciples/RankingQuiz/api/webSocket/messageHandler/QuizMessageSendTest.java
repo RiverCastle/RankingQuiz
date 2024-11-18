@@ -108,7 +108,7 @@ class QuizMessageSendTest {
             executor.submit(new MessageSendingTask(sessions.get(sessionId), textMessage));
         }
         executor.shutdown();
-        executor.awaitTermination(5, TimeUnit.SECONDS); // 작업 완료 대기
+//        executor.awaitTermination(50, TimeUnit.SECONDS); // 작업 완료 대기
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint());
     }
