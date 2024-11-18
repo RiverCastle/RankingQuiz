@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 class QuizMessageSendTest {
     private static final Map<String, WebSocketSession> sessions_200 = new HashMap<>();
@@ -55,18 +56,18 @@ class QuizMessageSendTest {
     /*
     테스트 목적: 동일한 퀴즈 데이터 메시지를 세션에 전송할 때, 현재 순차적으로 전송하는데, 소요되는 시간을 측정하기 위함
     테스트 결과:
-        세션 수 = 200:   0.0078525 seconds
-        세션 수 = 1000:  0.022955  seconds
-        세션 수 = 10000: 0.2079455 seconds
-        세션 수 = 30000: 0.624372  seconds
-        세션 수 = 50000: 1.0402312 seconds
+        접속자 수 = 200:   0.0078525 seconds
+        접속자 수 = 1000:  0.022955  seconds
+        접속자 수 = 10000: 0.2079455 seconds
+        접속자 수 = 30000: 0.624372  seconds
+        접속자 수 = 50000: 1.0402312 seconds
      */
 
     private void sendMessages(Map<String, WebSocketSession> sessions) throws IOException, InterruptedException {
         StopWatch stopWatch = new StopWatch();
         Set<String> sessionIds = sessions.keySet();
 
-        stopWatch.start("세션 수 = " + sessions.size());
+        stopWatch.start("접속자 수 = " + sessions.size());
         for (String sessionId : sessionIds) {
             sessions.get(sessionId).sendMessage(new TextMessage("Test Message"));
         }
@@ -76,7 +77,7 @@ class QuizMessageSendTest {
 
     @Test
     @Async
-    void testAsynMessageSendTime() throws IOException {
+    void testAsynMessageSendTime() throws IOException, InterruptedException {
         sendMessagesAsync(sessions_200);
         sendMessagesAsync(sessions_1000);
         sendMessagesAsync(sessions_10000);
@@ -86,14 +87,14 @@ class QuizMessageSendTest {
     /*
     테스트 목적: 순차적으로 전송하지 않고, 스레드풀을 사용해 비동기적으로 전송했을 때 시간 측정
     테스트 결과:
-        세션 수 = 200:   0.0078525 -> 0.0012984 seconds
-        세션 수 = 1000:  0.022955  -> 0.0015127 seconds
-        세션 수 = 10000: 0.2079455 -> 0.0041229 seconds
-        세션 수 = 30000: 0.624372  -> 0.0099724 seconds
-        세션 수 = 50000: 1.0402312 -> 0.0145439 seconds
+        접속자 수 = 200:   0.0078525 -> 0.0076665 seconds
+        접속자 수 = 1000:  0.022955  -> 0.0120313 seconds
+        접속자 수 = 10000: 0.2079455 -> 0.0828796 seconds
+        접속자 수 = 30000: 0.624372  -> 0.2757126 seconds
+        접속자 수 = 50000: 1.0402312 -> 0.4613047 seconds
      */
 
-    private void sendMessagesAsync(Map<String, WebSocketSession> sessions) throws IOException {
+    private void sendMessagesAsync(Map<String, WebSocketSession> sessions) throws IOException, InterruptedException {
         Set<String> sessionIds = sessions.keySet();
         TextMessage textMessage = new TextMessage("테스트 메시지");
 
@@ -102,11 +103,12 @@ class QuizMessageSendTest {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         stopWatch.stop();
 
-        stopWatch.start("세션 수 = " + sessions.size());
+        stopWatch.start("접속자 수 = " + sessions.size());
         for (String sessionId : sessionIds) {
             executor.submit(new MessageSendingTask(sessions.get(sessionId), textMessage));
         }
         executor.shutdown();
+        executor.awaitTermination(5, TimeUnit.SECONDS); // 작업 완료 대기
         stopWatch.stop();
         System.out.println(stopWatch.prettyPrint());
     }
