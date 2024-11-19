@@ -30,7 +30,6 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
     private final AccessTokenMessageHandler accessTokenMessageHandler;
-    private final VocaQuizAnswerDtoMessageHandler answerDtoMessageHandler;
 
     @Scheduled(fixedDelay = 1000)
     private void abcd() throws IOException, InterruptedException {
@@ -80,7 +79,7 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
             case "AnswerDto" -> {
                 if (!(presentState instanceof COMPLETE_QUIZ || presentState instanceof ON_QUIZ)) return;
                 Long memberId = (Long) session.getAttributes().get("memberId");
-                answerDtoMessageHandler.handleAnswerDtoMessageObject(session.getId(), memberId, objectInMessage);
+                quizDataCenterMediator.sendAnswerToDataCenter(category, session.getId(), memberId, objectInMessage);
                 TextMessage guideMessage =
                         textMessageFactory.produceTextMessage(guideMessageBundle.getAnswerSubmittedMessage());
                 session.sendMessage(guideMessage);
