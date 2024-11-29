@@ -91,7 +91,6 @@ public class VocaQuizDataCenter extends QuizDataCenter {
 
     public void initiateQuiz() {
         setPresentQuiz(quizQuizContentFacade.setNewQuiz(category));
-        System.out.println("presentQuiz = " + presentQuiz);
     }
 
     public QuizDto getPresentQuizDto() {
