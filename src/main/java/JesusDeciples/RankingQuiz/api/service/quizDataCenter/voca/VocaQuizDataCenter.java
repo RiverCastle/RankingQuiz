@@ -30,6 +30,7 @@ public class VocaQuizDataCenter extends QuizDataCenter {
     private final Long waitingTime = 3L; // 퀴즈 수거 대기 시간
     private final QuizScoreFacade quizScoreFacade;
     private final QuizQuizContentFacade quizQuizContentFacade;
+    @Getter
     private final Queue<AnswerDto> answerQueue = new LinkedList<>();
     @Getter
     private final Map<String, QuizResultDto> results = new HashMap<>();
@@ -65,12 +66,24 @@ public class VocaQuizDataCenter extends QuizDataCenter {
     public void score() {
         clearWinnerName();
         clearResults(); // 채점 시작 전 채점 결과 Collection clear
+        List<String> winners = new ArrayList<>();
+        LocalDateTime fastest = LocalDateTime.MAX;
         for (AnswerDto answerDto : answerQueue) {
             QuizResultDto resultDto = quizScoreFacade.score(presentQuiz.getId(), answerDto);
-            if (resultDto.isCorrect() & winnerName == null) {
-                winnerName = resultDto.getUserName();
+            LocalDateTime writtenAt = resultDto.getWrittenAt();
+            if (resultDto.isCorrect()) {
+                if (writtenAt.isBefore(fastest)) {
+                    winners.clear();
+                    fastest = writtenAt;
+                    winners.add(resultDto.getUserName());
+                } else if (fastest.equals(writtenAt)) {
+                    winners.add(resultDto.getUserName());
+                }
             }
-            results.put(answerDto.getSessionId(), resultDto);
+            StringBuilder sb = new StringBuilder();
+            for (String name : winners)
+                sb.append(name).append(" ");
+            winnerName = sb.toString();
         }
         clearAnswers();
     }
