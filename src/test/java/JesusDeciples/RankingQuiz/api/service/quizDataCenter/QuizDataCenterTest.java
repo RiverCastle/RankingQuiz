@@ -85,4 +85,106 @@ class QuizDataCenterTest {
 
         assertEquals("Answer1 Answer2 Answer3 ", quizDataCenter.getWinnerName());
     }
+
+    @Test
+    @DisplayName("유저 1명이 Winner")
+    void testScoring1() {
+        LocalDateTime now = LocalDateTime.now();
+        Long quizId = 111L;
+        Quiz quiz = new Quiz();
+        quiz.setId(quizId);
+
+        String session1 = "Session1";
+        AnswerDto answer1 = new AnswerDto();
+        answer1.setSessionId(session1);
+        answer1.setQuizId(quizId);
+        String session2 = "Session2";
+        AnswerDto answer2 = new AnswerDto();
+        answer2.setSessionId(session2);
+        answer2.setQuizId(quizId);
+        String session3 = "Session3";
+        AnswerDto answer3 = new AnswerDto();
+        answer3.setSessionId(session3);
+        answer3.setQuizId(quizId);
+
+        quizDataCenter.loadAnswerFromUser(answer1);
+        quizDataCenter.loadAnswerFromUser(answer2);
+        quizDataCenter.loadAnswerFromUser(answer3);
+
+        QuizResultDto result1 = new QuizResultDto();
+        result1.setWrittenAt(now);
+        result1.setCorrect(false);
+        result1.setUserName("Answer1");
+
+        QuizResultDto result2 = new QuizResultDto();
+        result2.setWrittenAt(now);
+        result2.setCorrect(true);
+        result2.setUserName("Answer2");
+
+        QuizResultDto result3 = new QuizResultDto();
+        result3.setWrittenAt(now);
+        result3.setCorrect(false);
+        result3.setUserName("Answer3");
+
+        Map<String, QuizResultDto> results = new HashMap<>();
+        when(quizScoreFacade.score(quizId, answer1)).thenReturn(result1);
+        when(quizScoreFacade.score(quizId, answer2)).thenReturn(result2);
+        when(quizScoreFacade.score(quizId, answer3)).thenReturn(result3);
+
+        quizDataCenter.setPresentQuiz(quiz);
+        quizDataCenter.score();
+
+        assertEquals("Answer2 ", quizDataCenter.getWinnerName());
+    }
+
+    @Test
+    @DisplayName("유저 0명이 Winner")
+    void testScoring2() {
+        LocalDateTime now = LocalDateTime.now();
+        Long quizId = 111L;
+        Quiz quiz = new Quiz();
+        quiz.setId(quizId);
+
+        String session1 = "Session1";
+        AnswerDto answer1 = new AnswerDto();
+        answer1.setSessionId(session1);
+        answer1.setQuizId(quizId);
+        String session2 = "Session2";
+        AnswerDto answer2 = new AnswerDto();
+        answer2.setSessionId(session2);
+        answer2.setQuizId(quizId);
+        String session3 = "Session3";
+        AnswerDto answer3 = new AnswerDto();
+        answer3.setSessionId(session3);
+        answer3.setQuizId(quizId);
+
+        quizDataCenter.loadAnswerFromUser(answer1);
+        quizDataCenter.loadAnswerFromUser(answer2);
+        quizDataCenter.loadAnswerFromUser(answer3);
+
+        QuizResultDto result1 = new QuizResultDto();
+        result1.setWrittenAt(now);
+        result1.setCorrect(false);
+        result1.setUserName("Answer1");
+
+        QuizResultDto result2 = new QuizResultDto();
+        result2.setWrittenAt(now);
+        result2.setCorrect(false);
+        result2.setUserName("Answer2");
+
+        QuizResultDto result3 = new QuizResultDto();
+        result3.setWrittenAt(now);
+        result3.setCorrect(false);
+        result3.setUserName("Answer3");
+
+        Map<String, QuizResultDto> results = new HashMap<>();
+        when(quizScoreFacade.score(quizId, answer1)).thenReturn(result1);
+        when(quizScoreFacade.score(quizId, answer2)).thenReturn(result2);
+        when(quizScoreFacade.score(quizId, answer3)).thenReturn(result3);
+
+        quizDataCenter.setPresentQuiz(quiz);
+        quizDataCenter.score();
+
+        assertEquals(null, quizDataCenter.getWinnerName());
+    }
 }

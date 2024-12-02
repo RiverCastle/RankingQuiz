@@ -83,7 +83,7 @@ public class VocaQuizDataCenter extends QuizDataCenter {
             StringBuilder sb = new StringBuilder();
             for (String name : winners)
                 sb.append(name).append(" ");
-            winnerName = sb.toString();
+            winnerName = winners.isEmpty() ? null : sb.toString();
         }
         clearAnswers();
     }
