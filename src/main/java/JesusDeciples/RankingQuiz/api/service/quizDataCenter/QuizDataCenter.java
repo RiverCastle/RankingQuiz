@@ -20,5 +20,5 @@ public abstract class QuizDataCenter {
     public abstract Map<String, QuizResultDto> getResults();
     public abstract QuizDto getPresentQuizDto();
     public abstract String getWinnerName();
-    public abstract void loadAnswerFromUser(String sessionId, AnswerDto answerDto);
+    public abstract void loadAnswerFromUser(AnswerDto answerDto);
 }

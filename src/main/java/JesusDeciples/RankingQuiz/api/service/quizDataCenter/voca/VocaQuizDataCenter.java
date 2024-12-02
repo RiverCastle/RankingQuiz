@@ -17,10 +17,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -33,7 +30,7 @@ public class VocaQuizDataCenter extends QuizDataCenter {
     private final Long waitingTime = 3L; // 퀴즈 수거 대기 시간
     private final QuizScoreFacade quizScoreFacade;
     private final QuizQuizContentFacade quizQuizContentFacade;
-    private final Map<String, AnswerDto> savedAnswerDtos = new HashMap<>();
+    private final Queue<AnswerDto> answerQueue = new LinkedList<>();
     @Getter
     private final Map<String, QuizResultDto> results = new HashMap<>();
     @Getter
@@ -43,20 +40,12 @@ public class VocaQuizDataCenter extends QuizDataCenter {
         this.presentState.handle(this);
     }
 
-    private QuizResultDto getQuizResult(String sessionId) {
-        if (savedAnswerDtos.containsKey(sessionId)) {
-            AnswerDto answerDto = savedAnswerDtos.get(sessionId);
-            return quizScoreFacade.score(presentQuiz.getId(), answerDto);
-        }
-        return null;
-    }
-
-    public void loadAnswerFromUser(String sessionId, AnswerDto answerDto) {
-        savedAnswerDtos.put(sessionId, answerDto);
+    public void loadAnswerFromUser(AnswerDto answerDto) {
+        answerQueue.add(answerDto);
     }
 
     private void clearAnswers() {
-        savedAnswerDtos.clear();
+        answerQueue.clear();
     }
     private void clearResults() {
         results.clear();
@@ -76,17 +65,14 @@ public class VocaQuizDataCenter extends QuizDataCenter {
     public void score() {
         clearWinnerName();
         clearResults(); // 채점 시작 전 채점 결과 Collection clear
-        Set<String> quizParticipantsSessionIds = savedAnswerDtos.keySet();
-        LocalDateTime fastest = LocalDateTime.MAX;
-        for (String sessionId : quizParticipantsSessionIds) {
-            QuizResultDto resultDto = getQuizResult(sessionId);
-            if (resultDto.isCorrect() & fastest.isAfter(resultDto.getWrittenAt())) {
-                fastest = resultDto.getWrittenAt();
-                this.winnerName = resultDto.getUserName();
+        for (AnswerDto answerDto : answerQueue) {
+            QuizResultDto resultDto = quizScoreFacade.score(presentQuiz.getId(), answerDto);
+            if (resultDto.isCorrect() & winnerName == null) {
+                winnerName = resultDto.getUserName();
             }
-            results.put(sessionId, resultDto);
+            results.put(answerDto.getSessionId(), resultDto);
         }
-        clearAnswers(); // 채점 후 정답 Collection clear
+        clearAnswers();
     }
 
     public void initiateQuiz() {

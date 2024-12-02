@@ -61,6 +61,7 @@ public class QuizDataCenterMediator {
 
         // 엑세스 토큰을 가진 세션의 경우 memberId 값이 있음
         answerDto.setMemberId(memberId);
-        quizDataCenter.loadAnswerFromUser(sessionId, answerDto);
+        answerDto.setSessionId(sessionId);
+        quizDataCenter.loadAnswerFromUser(answerDto);
     }
 }
