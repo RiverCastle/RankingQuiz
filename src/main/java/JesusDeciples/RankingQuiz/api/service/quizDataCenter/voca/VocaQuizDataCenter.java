@@ -70,6 +70,7 @@ public class VocaQuizDataCenter extends QuizDataCenter {
         LocalDateTime fastest = LocalDateTime.MAX;
         for (AnswerDto answerDto : answerQueue) {
             QuizResultDto resultDto = quizScoreFacade.score(presentQuiz.getId(), answerDto);
+            results.put(answerDto.getSessionId(), resultDto);
             LocalDateTime writtenAt = resultDto.getWrittenAt();
             if (resultDto.isCorrect()) {
                 if (writtenAt.isBefore(fastest)) {
