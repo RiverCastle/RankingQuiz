@@ -1,5 +1,6 @@
 package JesusDeciples.RankingQuiz.api.service.quizDataCenter;
 
+import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
 import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterState;
@@ -19,4 +20,5 @@ public abstract class QuizDataCenter {
     public abstract Map<String, QuizResultDto> getResults();
     public abstract QuizDto getPresentQuizDto();
     public abstract String getWinnerName();
+    public abstract void loadAnswerFromUser(AnswerDto answerDto);
 }

@@ -13,4 +13,6 @@ public interface MemberService {
     void chageMemberNameInto(Long memberId, String newName);
 
     Member getMemberById(Long memberId);
+
+    void updatePoint(Long memberId, int point);
 }

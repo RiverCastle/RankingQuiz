@@ -48,4 +48,10 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("유저를 조회하지 못했습니다."));
     }
 
+    @Override
+    public void updatePoint(Long memberId, int point) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("유저를 조회하지 못했습니다."));
+        member.setPoint(member.getPoint() + point);
+        memberRepository.save(member);
+    }
 }

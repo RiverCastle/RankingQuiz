@@ -31,7 +31,6 @@ public class WebSocketBibleQuizHandler implements WebSocketHandler {
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
     private final AccessTokenMessageHandler accessTokenMessageHandler;
-    private final BibleQuizAnswerDtoMessageHandler answerDtoMessageHandler;
 
     @Scheduled(fixedDelay = 1000)
     private void abcd() throws IOException, InterruptedException {
@@ -75,19 +74,34 @@ public class WebSocketBibleQuizHandler implements WebSocketHandler {
             case "AccessToken" -> {
                 Long memberId =
                         accessTokenMessageHandler.handleAccessTokenMessageObject(objectInMessage);
-                session.getAttributes().put("memberId", memberId);
+
+                boolean connectionCheckResult = memberId == null ? true : checkConnectionAlready(session, memberId);
+                if (connectionCheckResult) session.getAttributes().put("memberId", memberId);
             }
 
             case "AnswerDto" -> {
                 if (!(presentState instanceof COMPLETE_QUIZ || presentState instanceof ON_QUIZ)) return;
                 Long memberId = (Long) session.getAttributes().get("memberId");
-                answerDtoMessageHandler.handleAnswerDtoMessageObject(session.getId(), memberId, objectInMessage);
+                quizDataCenterMediator.sendAnswerToDataCenter(category, session.getId(), memberId, objectInMessage);
                 TextMessage guideMessage =
                         textMessageFactory.produceTextMessage(guideMessageBundle.getAnswerSubmittedMessage());
                 session.sendMessage(guideMessage);
                 return;
             }
         }
+    }
+
+    private boolean checkConnectionAlready(WebSocketSession session, Long memberId) throws IOException {
+        for (WebSocketSession presentSession : sessions.values()) {
+            if (presentSession.getAttributes().get("memberId") == memberId) {
+                sendMessageToSpecificSession(new TextMessage("이미 해당 퀴즈에 참여중입니다. 오류라면 에러 피드백을 남겨주세요. 비정상적인 접속으로 여겨져 접속이 종료됩니다."), session);
+                session.close();
+                sendMessageToSpecificSession(new TextMessage("또 다른 접속이 감지되었습니다. 본인이 아니라면 암호를 바꾸시길 권장드립니다. 비정상적인 접속으로 여겨져 접속이 종료됩니다."), presentSession);
+                presentSession.close();
+                return false;
+            }
+        }
+        return true;
     }
 
     private void sendMessageToAllSessions(TextMessage message) throws IOException {

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class QuizScoreFacade {
-//    추후에 score 결과 save를 위해 facade 적용
     private final QuizService quizService;
     private final QuizResultService quizResultService;
     private final MemberService memberService;
@@ -36,6 +35,7 @@ public class QuizScoreFacade {
         if (memberId != null) {
             Member member = memberService.getMemberById(answerDto.getMemberId());
             QuizResult quizResult = quizResultService.addQuizResult(quiz, member, answerDto.getUserAnswer(), answerDto.getWrittenAt());
+            if (quizResult.isCorrect()) memberService.updatePoint(memberId, 1);
         }
         return dto;
     }
