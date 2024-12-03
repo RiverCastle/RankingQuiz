@@ -83,7 +83,7 @@ class QuizDataCenterTest {
         quizDataCenter.setPresentQuiz(quiz);
         quizDataCenter.score();
 
-        assertEquals("Answer1 Answer2 Answer3 ", quizDataCenter.getWinnerName());
+        assertEquals("Answer1 Answer2 Answer3", quizDataCenter.getWinnerName());
     }
 
     @Test
@@ -134,7 +134,7 @@ class QuizDataCenterTest {
         quizDataCenter.setPresentQuiz(quiz);
         quizDataCenter.score();
 
-        assertEquals("Answer2 ", quizDataCenter.getWinnerName());
+        assertEquals("Answer2", quizDataCenter.getWinnerName());
     }
 
     @Test
