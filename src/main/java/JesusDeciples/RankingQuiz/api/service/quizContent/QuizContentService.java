@@ -9,6 +9,6 @@ import org.springframework.stereotype.Service;
 public interface QuizContentService {
     void addQuizContent(QuizContentCreateDto quizContentCreateDto);
     QuizContent getQuizContentExcept(Long presentQuizContentId, QuizCategory category);
-
     QuizContent getRandomQuizContent(QuizCategory category);
+    void saveToRepository(QuizContent entity);
 }

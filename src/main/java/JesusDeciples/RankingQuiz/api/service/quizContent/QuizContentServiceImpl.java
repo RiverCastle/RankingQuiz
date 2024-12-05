@@ -59,6 +59,11 @@ public class QuizContentServiceImpl implements QuizContentService {
     public QuizContent getRandomQuizContent(QuizCategory category) {
         return quizContentRepository.findRandomByCategory(category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
     }
+
+    @Override
+    public void saveToRepository(QuizContent entity) {
+
+    }
 }
 
 // 새로운 문제의 유형을 추가할 때,
