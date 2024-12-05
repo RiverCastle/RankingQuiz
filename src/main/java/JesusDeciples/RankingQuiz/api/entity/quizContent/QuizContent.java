@@ -4,6 +4,9 @@ import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 public class QuizContent {
@@ -15,4 +18,12 @@ public class QuizContent {
     private Integer timeLimit;
     @Enumerated(EnumType.STRING)
     private QuizCategory category;
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "quizContent")
+    private List<QuizContentLinkReferenceTag> links = new ArrayList<>();
+    public void linkWithTags(List<QuizContentLinkReferenceTag> list) {
+        this.links = list;
+        for (QuizContentLinkReferenceTag classLink : list) {
+            classLink.setQuizContent(this);
+        }
+    }
 }
