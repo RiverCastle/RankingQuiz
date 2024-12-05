@@ -23,7 +23,7 @@ public class QuizContentServiceImpl implements QuizContentService {
     private final QuizContentRepository quizContentRepository;
     private final ShortAnswerQuizContentRepository shortAnswerQuizContentRepository;
     @Override
-    public void addQuiz(QuizContentCreateDto dto) {
+    public void addQuizContent(QuizContentCreateDto dto) {
         QuizType dtoType = dto.getQuizType();
         if (dtoType == QuizType.MULTIPLE_CHOICE) {
             List<String> multipleOptions = dto.getMultipleOptions();

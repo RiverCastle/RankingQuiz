@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface QuizContentService {
-    void addQuiz(QuizContentCreateDto quizContentCreateDto);
+    void addQuizContent(QuizContentCreateDto quizContentCreateDto);
     QuizContent getQuizContentExcept(Long presentQuizContentId, QuizCategory category);
 
     QuizContent getRandomQuizContent(QuizCategory category);

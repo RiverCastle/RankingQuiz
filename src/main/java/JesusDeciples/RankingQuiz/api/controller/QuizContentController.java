@@ -14,6 +14,6 @@ public class QuizContentController {
     @PostMapping
     public void addQuizContent(@RequestBody QuizContentCreateDto[] quizContentCreateDtos) {
         for (QuizContentCreateDto quizContentCreateDto : quizContentCreateDtos)
-        quizContentService.addQuiz(quizContentCreateDto);
+        quizContentService.addQuizContent(quizContentCreateDto);
     }
 }
