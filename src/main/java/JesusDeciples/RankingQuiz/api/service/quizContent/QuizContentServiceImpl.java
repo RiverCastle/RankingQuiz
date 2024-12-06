@@ -20,7 +20,7 @@ import static JesusDeciples.RankingQuiz.api.dto.QuizType.SHORT_ANSWER_WRITING;
 @RequiredArgsConstructor
 public class QuizContentServiceImpl implements QuizContentService {
     private final MultipleChoiceQuizContentRepository multipleChoiceQuizContentRepository;
-    private final QuizContentRepository quizContentRepository;
+    private final QuizContentRepository repository;
     private final ShortAnswerQuizContentRepository shortAnswerQuizContentRepository;
     @Override
     public void addQuizContent(QuizContentCreateDto dto) {
@@ -35,7 +35,7 @@ public class QuizContentServiceImpl implements QuizContentService {
                 entity.setTimeLimit(dto.getTimeLimit());
                 entity.setCategory(dto.getCategory());
                 multipleChoiceQuizContentRepository.save(entity);
-                quizContentRepository.save(entity);
+                repository.save(entity);
             }
             // 보기 없는 보기형 문제 생성 요청의 경우는 예외처리
 
@@ -45,24 +45,24 @@ public class QuizContentServiceImpl implements QuizContentService {
             entity.setAnswer(dto.getAnswer());
             entity.setTimeLimit(dto.getTimeLimit());
             shortAnswerQuizContentRepository.save(entity);
-            quizContentRepository.save(entity);
+            repository.save(entity);
         }
     }
 
     @Override
     public QuizContent getQuizContentExcept(Long presentQuizContentId, QuizCategory category) {
-        return quizContentRepository.findRandomByIdNotAndCategory(presentQuizContentId, category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
+        return repository.findRandomByIdNotAndCategory(presentQuizContentId, category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
         //TODO 퀴즈 타입에 따라 Fetch join을 걸어줘야함. 일단 보류
     }
 
     @Override
     public QuizContent getRandomQuizContent(QuizCategory category) {
-        return quizContentRepository.findRandomByCategory(category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
+        return repository.findRandomByCategory(category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
     }
 
     @Override
     public void saveToRepository(QuizContent entity) {
-        quizContentRepository.save(entity);
+        repository.save(entity);
     }
 }
 
