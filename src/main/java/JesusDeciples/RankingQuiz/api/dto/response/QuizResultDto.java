@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class QuizResultDto {
+    private Long id;
     private boolean isCorrect;
     @Setter
     private boolean haveAnswered;
