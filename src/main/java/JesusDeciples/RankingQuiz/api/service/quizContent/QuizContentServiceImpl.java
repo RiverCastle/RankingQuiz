@@ -62,7 +62,7 @@ public class QuizContentServiceImpl implements QuizContentService {
 
     @Override
     public void saveToRepository(QuizContent entity) {
-
+        quizContentRepository.save(entity);
     }
 }
 
