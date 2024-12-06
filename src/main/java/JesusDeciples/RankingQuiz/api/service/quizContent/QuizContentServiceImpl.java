@@ -2,9 +2,7 @@ package JesusDeciples.RankingQuiz.api.service.quizContent;
 
 import JesusDeciples.RankingQuiz.api.dto.QuizType;
 import JesusDeciples.RankingQuiz.api.dto.request.QuizContentCreateDto;
-import JesusDeciples.RankingQuiz.api.entity.quizContent.MultipleChoiceQuizContent;
-import JesusDeciples.RankingQuiz.api.entity.quizContent.QuizContent;
-import JesusDeciples.RankingQuiz.api.entity.quizContent.ShortAnswerQuizContent;
+import JesusDeciples.RankingQuiz.api.entity.quizContent.*;
 import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.repository.MultipleChoiceQuizContentRepository;
 import JesusDeciples.RankingQuiz.api.repository.QuizContentRepository;
@@ -13,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 import static JesusDeciples.RankingQuiz.api.dto.QuizType.SHORT_ANSWER_WRITING;
 
@@ -63,6 +62,16 @@ public class QuizContentServiceImpl implements QuizContentService {
     @Override
     public void saveToRepository(QuizContent entity) {
         repository.save(entity);
+    }
+
+    @Override
+    public QuizContent getQuizContentById(Long id) {
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("NOT FOUND on this id"));
+    }
+
+    @Override
+    public List<QuizContent> findAllByReferenceTagIn(Set<ReferenceTag> tagSet) {
+        return repository.findDistinctAllByTagIn(tagSet);
     }
 }
 
