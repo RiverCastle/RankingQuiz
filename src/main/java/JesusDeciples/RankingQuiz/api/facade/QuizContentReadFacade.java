@@ -21,10 +21,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class QuizContentReadFacade {
     private final QuizContentService quizContentService;
-    private final MultipleChoiceQuizContentService multipleChoiceQuizContentService;
-    private final ShortAnswerQuizContentService shortAnswerQuizContentService;
-    private final QuizContentLinkReferenceTagService linkService;
-    private final ReferenceTagService tagService;
 
     public List<QuizContentReviewDto> readQuizContentLinkedWith(Long quizContentId) {
         QuizContent quizContent = quizContentService.getQuizContentById(quizContentId);
