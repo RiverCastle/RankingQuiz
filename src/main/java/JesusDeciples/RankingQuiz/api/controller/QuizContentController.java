@@ -1,7 +1,7 @@
 package JesusDeciples.RankingQuiz.api.controller;
 
-import JesusDeciples.RankingQuiz.api.dto.QuizContentDto;
 import JesusDeciples.RankingQuiz.api.dto.request.QuizContentCreateDto;
+import JesusDeciples.RankingQuiz.api.dto.response.QuizContentReviewDto;
 import JesusDeciples.RankingQuiz.api.facade.QuizContentCreateFacade;
 import JesusDeciples.RankingQuiz.api.facade.QuizContentReadFacade;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class QuizContentController {
     }
 
     @GetMapping("/review-content/{quizContentId}")
-    public ResponseEntity<List<QuizContentDto>> getQuizContentForReview(@PathVariable("quizContentId") Long quizContentId) {
+    public ResponseEntity<List<QuizContentReviewDto>> getQuizContentForReview(@PathVariable("quizContentId") Long quizContentId) {
         return ResponseEntity.ok(readFacade.readQuizContentLinkedWith(quizContentId));
     }
 }
