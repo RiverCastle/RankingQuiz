@@ -36,17 +36,22 @@ public class VocaQuizDataCenter extends QuizDataCenter {
     private final Map<String, QuizResultDto> results = new HashMap<>();
     @Getter
     private String winnerName;
+    private final Map<Long, Boolean> haveAnswered = new HashMap<>();
 
     public void handle() {
         this.presentState.handle(this);
     }
 
     public void loadAnswerFromUser(AnswerDto answerDto) {
-        answerQueue.add(answerDto);
+        if (!haveAnswered.containsKey(answerDto.getMemberId())) {
+            haveAnswered.put(answerDto.getMemberId(), true);
+            answerQueue.add(answerDto);
+        }
     }
 
     private void clearAnswers() {
         answerQueue.clear();
+        haveAnswered.clear();
     }
     private void clearResults() {
         results.clear();
