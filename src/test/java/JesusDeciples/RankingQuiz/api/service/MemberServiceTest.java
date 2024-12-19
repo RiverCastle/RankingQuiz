@@ -37,7 +37,7 @@ class MemberServiceTest {
         testMember.setId(id);
 
         when(memberRepository.save(testMember)).thenReturn(testMember);
-        when(memberRepository.findById(id)).thenReturn(Optional.of(testMember));
+        when(memberRepository.findByIdForUpdate(id)).thenReturn(Optional.of(testMember));
 
         testMember = memberRepository.save(testMember);
 
