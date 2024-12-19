@@ -6,6 +6,8 @@ import JesusDeciples.RankingQuiz.api.enums.OAuthProvider;
 import JesusDeciples.RankingQuiz.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 
 import static JesusDeciples.RankingQuiz.api.enums.Authority.ROLE_USER;
@@ -49,9 +51,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void updatePoint(Long memberId, int point) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("유저를 조회하지 못했습니다."));
-        member.setPoint(member.getPoint() + point);
+    @Transactional
+    public void updatePoint(Long id, int point) {
+        Member member = memberRepository.findByIdForUpdate(id).orElseThrow(() -> new RuntimeException("유저를 조회하지 못했습니다."));
+        int presentPoint = member.getPoint();
+        member.setPoint(presentPoint + point);
         memberRepository.save(member);
     }
 }

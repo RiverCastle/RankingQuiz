@@ -2,9 +2,7 @@ package JesusDeciples.RankingQuiz.api.service.quizContent;
 
 import JesusDeciples.RankingQuiz.api.dto.QuizType;
 import JesusDeciples.RankingQuiz.api.dto.request.QuizContentCreateDto;
-import JesusDeciples.RankingQuiz.api.entity.quizContent.MultipleChoiceQuizContent;
-import JesusDeciples.RankingQuiz.api.entity.quizContent.QuizContent;
-import JesusDeciples.RankingQuiz.api.entity.quizContent.ShortAnswerQuizContent;
+import JesusDeciples.RankingQuiz.api.entity.quizContent.*;
 import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.repository.MultipleChoiceQuizContentRepository;
 import JesusDeciples.RankingQuiz.api.repository.QuizContentRepository;
@@ -13,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 import static JesusDeciples.RankingQuiz.api.dto.QuizType.SHORT_ANSWER_WRITING;
 
@@ -20,10 +19,10 @@ import static JesusDeciples.RankingQuiz.api.dto.QuizType.SHORT_ANSWER_WRITING;
 @RequiredArgsConstructor
 public class QuizContentServiceImpl implements QuizContentService {
     private final MultipleChoiceQuizContentRepository multipleChoiceQuizContentRepository;
-    private final QuizContentRepository quizContentRepository;
+    private final QuizContentRepository repository;
     private final ShortAnswerQuizContentRepository shortAnswerQuizContentRepository;
     @Override
-    public void addQuiz(QuizContentCreateDto dto) {
+    public void addQuizContent(QuizContentCreateDto dto) {
         QuizType dtoType = dto.getQuizType();
         if (dtoType == QuizType.MULTIPLE_CHOICE) {
             List<String> multipleOptions = dto.getMultipleOptions();
@@ -35,7 +34,7 @@ public class QuizContentServiceImpl implements QuizContentService {
                 entity.setTimeLimit(dto.getTimeLimit());
                 entity.setCategory(dto.getCategory());
                 multipleChoiceQuizContentRepository.save(entity);
-                quizContentRepository.save(entity);
+                repository.save(entity);
             }
             // 보기 없는 보기형 문제 생성 요청의 경우는 예외처리
 
@@ -45,19 +44,34 @@ public class QuizContentServiceImpl implements QuizContentService {
             entity.setAnswer(dto.getAnswer());
             entity.setTimeLimit(dto.getTimeLimit());
             shortAnswerQuizContentRepository.save(entity);
-            quizContentRepository.save(entity);
+            repository.save(entity);
         }
     }
 
     @Override
     public QuizContent getQuizContentExcept(Long presentQuizContentId, QuizCategory category) {
-        return quizContentRepository.findRandomByIdNotAndCategory(presentQuizContentId, category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
+        return repository.findRandomByIdNotAndCategory(presentQuizContentId, category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
         //TODO 퀴즈 타입에 따라 Fetch join을 걸어줘야함. 일단 보류
     }
 
     @Override
     public QuizContent getRandomQuizContent(QuizCategory category) {
-        return quizContentRepository.findRandomByCategory(category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
+        return repository.findRandomByCategory(category.name()).orElseThrow(() -> new RuntimeException("NOT FOUND"));
+    }
+
+    @Override
+    public void saveToRepository(QuizContent entity) {
+        repository.save(entity);
+    }
+
+    @Override
+    public QuizContent getQuizContentById(Long id) {
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("NOT FOUND on this id"));
+    }
+
+    @Override
+    public List<QuizContent> findAllByReferenceTagIn(Set<ReferenceTag> tagSet) {
+        return repository.findDistinctAllByTagIn(tagSet);
     }
 }
 

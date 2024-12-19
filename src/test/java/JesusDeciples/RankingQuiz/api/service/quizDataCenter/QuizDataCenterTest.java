@@ -53,6 +53,10 @@ class QuizDataCenterTest {
         answer3.setSessionId(session3);
         answer3.setQuizId(quizId);
 
+        answer1.setMemberId(1L);
+        answer2.setMemberId(2L);
+        answer3.setMemberId(3L);
+
         quizDataCenter.loadAnswerFromUser(answer1);
         quizDataCenter.loadAnswerFromUser(answer2);
         quizDataCenter.loadAnswerFromUser(answer3);
@@ -107,6 +111,10 @@ class QuizDataCenterTest {
         answer3.setSessionId(session3);
         answer3.setQuizId(quizId);
 
+        answer1.setMemberId(1L);
+        answer2.setMemberId(2L);
+        answer3.setMemberId(3L);
+
         quizDataCenter.loadAnswerFromUser(answer1);
         quizDataCenter.loadAnswerFromUser(answer2);
         quizDataCenter.loadAnswerFromUser(answer3);
@@ -158,6 +166,10 @@ class QuizDataCenterTest {
         answer3.setSessionId(session3);
         answer3.setQuizId(quizId);
 
+        answer1.setMemberId(1L);
+        answer2.setMemberId(2L);
+        answer3.setMemberId(3L);
+
         quizDataCenter.loadAnswerFromUser(answer1);
         quizDataCenter.loadAnswerFromUser(answer2);
         quizDataCenter.loadAnswerFromUser(answer3);
@@ -186,5 +198,25 @@ class QuizDataCenterTest {
         quizDataCenter.score();
 
         assertEquals(null, quizDataCenter.getWinnerName());
+    }
+
+    @Test
+    @DisplayName("동일한 사용자가 여러 번 답안을 제출된 경우")
+    void testLoadAnswer() {
+        Long memberId1 = 1L;
+        Long memberId2 = 2L;
+
+        AnswerDto answerSheet1 = new AnswerDto();
+        answerSheet1.setMemberId(memberId1);
+        AnswerDto answerSheet2 = new AnswerDto();
+        answerSheet2.setMemberId(memberId1);
+        AnswerDto answerSheet3 = new AnswerDto();
+        answerSheet3.setMemberId(memberId2);
+
+        quizDataCenter.loadAnswerFromUser(answerSheet1);
+        quizDataCenter.loadAnswerFromUser(answerSheet2);
+        quizDataCenter.loadAnswerFromUser(answerSheet3);
+
+        assertEquals(2, quizDataCenter.getAnswerQueue().size());
     }
 }

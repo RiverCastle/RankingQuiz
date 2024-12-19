@@ -46,6 +46,7 @@ public class QuizResultServiceImpl implements QuizResultService {
             }
 
             QuizResultDto resultDto = new QuizResultDto();
+            resultDto.setId(quizContent.getId());
             resultDto.setCorrect(answer.equals(myAnswer));
             resultDto.setStatement(quizContent.getStatement());
             resultDto.setAnswer(answer);
