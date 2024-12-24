@@ -11,7 +11,9 @@ import JesusDeciples.RankingQuiz.api.service.ReferenceTagService;
 import JesusDeciples.RankingQuiz.api.service.ShortAnswerQuizContentService;
 import JesusDeciples.RankingQuiz.api.service.quizContent.QuizContentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +28,8 @@ public class QuizContentCreateFacade {
     private final QuizContentLinkReferenceTagService linkService;
     private final ReferenceTagService tagService;
 
+    @Async
+    @Transactional
     public void createQuizContent(QuizContentCreateDto dto) {
         QuizType quizType = dto.getQuizType();
         Set<String> tagSet = new HashSet<>(dto.getTags());
