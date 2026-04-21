@@ -9,7 +9,7 @@ public class SecurityUtil {
 
     public static Long getCurrentMemberId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null | authentication.getName() == null) {
+        if (authentication == null || authentication.getName() == null) {
             throw new RuntimeException("인증 정보가 없음");
         }
         return Long.parseLong(authentication.getName());

@@ -66,7 +66,7 @@ public class BibleQuizDataCenter extends QuizDataCenter {
         clearResults(); // 채점 시작 전 채점 결과 Collection clear
         for (AnswerDto answerDto : answerQueue) {
             QuizResultDto resultDto = quizScoreFacade.score(presentQuiz.getId(), answerDto);
-            if (winnerName == null & resultDto.isCorrect()) {
+            if (winnerName == null && resultDto.isCorrect()) {
                 winnerName = resultDto.getUserName();
             }
             results.put(answerDto.getSessionId(), resultDto);
