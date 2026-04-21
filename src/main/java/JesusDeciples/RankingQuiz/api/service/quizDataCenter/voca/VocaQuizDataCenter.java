@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 @RequiredArgsConstructor
@@ -31,20 +33,19 @@ public class VocaQuizDataCenter extends QuizDataCenter {
     private final QuizScoreFacade quizScoreFacade;
     private final QuizQuizContentFacade quizQuizContentFacade;
     @Getter
-    private final Queue<AnswerDto> answerQueue = new LinkedList<>();
+    private final Queue<AnswerDto> answerQueue = new ConcurrentLinkedQueue<>();
     @Getter
-    private final Map<String, QuizResultDto> results = new HashMap<>();
+    private final Map<String, QuizResultDto> results = new ConcurrentHashMap<>();
     @Getter
     private String winnerName;
-    private final Map<Long, Boolean> haveAnswered = new HashMap<>();
+    private final Map<Long, Boolean> haveAnswered = new ConcurrentHashMap<>();
 
     public void handle() {
         this.presentState.handle(this);
     }
 
     public void loadAnswerFromUser(AnswerDto answerDto) {
-        if (!haveAnswered.containsKey(answerDto.getMemberId())) {
-            haveAnswered.put(answerDto.getMemberId(), true);
+        if (haveAnswered.putIfAbsent(answerDto.getMemberId(), true) == null) {
             answerQueue.add(answerDto);
         }
     }

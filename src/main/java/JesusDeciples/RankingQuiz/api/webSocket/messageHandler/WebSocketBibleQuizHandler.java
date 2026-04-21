@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class WebSocketBibleQuizHandler implements WebSocketHandler {
     private final Long waitingTime = 3000L;
     private final CustomTextMessageFactory textMessageFactory;
     private final QuizDataCenterMediator quizDataCenterMediator;
-    private final Map<String, WebSocketSession> sessions = new HashMap<>();
+    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
     private final AccessTokenMessageHandler accessTokenMessageHandler;
@@ -93,7 +93,7 @@ public class WebSocketBibleQuizHandler implements WebSocketHandler {
 
     private boolean checkConnectionAlready(WebSocketSession session, Long memberId) throws IOException {
         for (WebSocketSession presentSession : sessions.values()) {
-            if (presentSession.getAttributes().get("memberId") == memberId) {
+            if (memberId.equals(presentSession.getAttributes().get("memberId"))) {
                 sendMessageToSpecificSession(new TextMessage("이미 해당 퀴즈에 참여중입니다. 오류라면 에러 피드백을 남겨주세요. 비정상적인 접속으로 여겨져 접속이 종료됩니다."), session);
                 session.close();
                 sendMessageToSpecificSession(new TextMessage("또 다른 접속이 감지되었습니다. 본인이 아니라면 암호를 바꾸시길 권장드립니다. 비정상적인 접속으로 여겨져 접속이 종료됩니다."), presentSession);
