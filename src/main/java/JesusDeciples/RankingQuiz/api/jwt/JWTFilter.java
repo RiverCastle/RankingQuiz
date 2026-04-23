@@ -30,6 +30,10 @@ public class JWTFilter extends OncePerRequestFilter {
                     jwt = bearerToken.substring(7);
                 } else jwt = null;
             }
+            if (jwt == null) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증 토큰이 없습니다.");
+                return;
+            }
             Authentication authentication = jwtProducer.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

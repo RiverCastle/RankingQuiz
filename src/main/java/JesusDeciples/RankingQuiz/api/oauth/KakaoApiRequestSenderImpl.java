@@ -43,7 +43,9 @@ public class KakaoApiRequestSenderImpl implements OAuthApiRequestSender {
 
         KakaoApiTokensImpl kakaoApiTokens = restTemplate.postForObject(kakaoTokenUrl, request, KakaoApiTokensImpl.class);
 
-        assert kakaoApiTokens != null;
+        if (kakaoApiTokens == null) {
+            throw new RuntimeException("카카오 토큰 발급 실패: 응답이 없습니다.");
+        }
         return kakaoApiTokens;
     }
     /*
@@ -62,6 +64,9 @@ public class KakaoApiRequestSenderImpl implements OAuthApiRequestSender {
         HttpEntity<?> request = new HttpEntity<>(body, headers);
         String kakaoUserInfoUrl = apiUrl + "/v2/user/me";
         KakaoUserInfoResponseImpl response = restTemplate.postForObject(kakaoUserInfoUrl, request, KakaoUserInfoResponseImpl.class);
+        if (response == null) {
+            throw new RuntimeException("카카오 사용자 정보 요청 실패: 응답이 없습니다.");
+        }
         return response;
     }
     /*

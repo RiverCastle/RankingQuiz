@@ -12,11 +12,7 @@ public class ShortAnswerQuizContentServiceImpl implements ShortAnswerQuizContent
     private final ShortAnswerQuizContentRepository repository;
     @Override
     public ShortAnswerQuizContent createShortAnswerQuizContent(QuizContentCreateDto dto) {
-        ShortAnswerQuizContent entity = new ShortAnswerQuizContent();
-        entity.setStatement(dto.getStatement());
-        entity.setAnswer(dto.getAnswer());
-        entity.setTimeLimit(dto.getTimeLimit());
-        return entity;
+        return ShortAnswerQuizContent.of(dto);
     }
 
     @Override
