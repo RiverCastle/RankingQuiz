@@ -1,0 +1,50 @@
+/* 기본 스타일 설정 */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+}
+
+h1 {
+    height: 30%;
+    font-size: 8vw;
+    margin-bottom: 20px;
+    color: #3f0f2a; /* 카카오 기본 색상 */
+}
+
+h2 {
+    height: 15%;
+    font-size: 5vw;
+    margin-bottom: 40px;
+    color: #555;
+}
+
+/* 로딩 컨테이너 스타일 */
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 로더 스타일 */
+.loader {
+    border: 8px solid #f3f3f3; /* 밝은 회색 */
+    border-top: 8px solid #3f0f2a; /* 카카오 색상 */
+    border-radius: 50%;
+    width: 10vw;
+    height: 10vw;
+    animation: spin 1s linear infinite;
+}
+
+/* 애니메이션 효과 */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

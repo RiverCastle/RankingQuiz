@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Quiz Room</title>
+    <link rel="stylesheet" href="/css/quiz/quiz-common.css">
+    <link rel="stylesheet" href="/css/quiz/guide-message.css">
+    <link rel="stylesheet" href="/css/quiz/quiz-result-item.css">
+    <link rel="stylesheet" href="/css/quiz/quiz-item-container.css">
+    <link rel="stylesheet" href="/css/quiz/stop-button.css">
+    <link rel="stylesheet" href="/css/quiz/waitingMessageContainer.css">
+</head>
+<body>
+<div id="quizBox">
+    <h1 id="quizStatement"></h1>
+    <div id="quizForm">
+        <div id="quizId"></div>
+        <div id="countdown"></div>
+    </div>
+    <div id="optionsContainer"></div>
+</div>
+
+<div id="quizResultContainer">
+    <div id="statement"></div> <div id="quizAnswer"></div> <div id="myAnswer"></div> <div id="isCorrect"></div>
+</div>
+
+<div id="guideMessageContainer"></div>
+<button id="stop-button">퀴즈 그만하기</button>
+<script src="/js/common/config.js"></script>
+<script src="/js/quiz/item-control-func.js"></script>
+<script src="/js/quiz/quiz-result-func.js"></script>
+<script src="/js/quiz/guideMessageFunc.js"></script>
+<script src="/js/quiz/bible-websocket-connect.js"></script>
+</body>
+</html>

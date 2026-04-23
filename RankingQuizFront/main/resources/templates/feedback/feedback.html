@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking Quiz Feedback page</title>
+    <link rel="stylesheet" href="/css/feedback/feedback.css">
+</head>
+<body>
+<h2>Ranking Quiz 서비스를 이용해주셔서 감사합니다!</h2>
+<h3>더 좋은 Ranking Quiz 서비스가 될 수 있도록 <br>소중한 의견을 남겨주시면 감사하겠습니다.</h3>
+<div class="feedback-content-container">
+    <h4 class="feedback-title">새로운 기능 건의 :</h4>
+    <div id="new-feature-container">
+        <div class="text-input-container">
+            <textarea class="feedback" placeholder="여기에 내용을 입력해주세요..."></textarea>
+        </div>
+    </div>
+    <div class="button-container">
+        <button id="add-new-feature" class="add-btn">추가하기</button>
+        <button id="remove-new-feature" class="remove-btn">제거하기</button>
+    </div>
+    <div class="example">
+        <h5 class="example">예시</h5>
+        <ul class="example">내가 틀린 문제를 모아서 보고 싶어요!</ul>
+        <ul class="example">그림 문제도 있었으면 좋겠어요!</ul>
+    </div>
+
+    <hr style="border: 1px solid #ccc; margin: 20px 0;">
+
+    <h4 class="feedback-title">이용하면서 불편한 점 :</h4>
+    <div id="inconvenience-container">
+        <div class="feedback-item">
+            <select class="feedback-category">
+                <option value="BackendIssue">기능</option>
+                <option value="FrontendIssue">화면</option>
+                <option value="NotSelected">미분류</option>
+            </select>
+            <div class="text-input-container">
+                <textarea class="feedback" placeholder="여기에 내용을 입력해주세요..."></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="button-container">
+        <button id="add-inconvenience" class="add-btn">추가하기</button>
+        <button id="remove-inconvenience" class="remove-btn">제거하기</button>
+    </div>
+    <div class="example">
+        <h5 class="example">예시</h5>
+        <ul class="example">어떤 버튼이 작동하지 않아요!</ul>
+        <ul class="example">퀴즈 | 답안 | 해설 | 안내메시지가 보이지 않아요!</ul>
+    </div>
+</div>
+
+<button id="submit-btn" class="submit-btn">제출하기</button>
+<script src="/js/common/config.js"></script>
+<script src="/js/feedback/feedback-submit-button.js"></script>
+<script src="/js/feedback/new-feature-proposal-control-button.js"></script>
+<script src="/js/feedback/inconvenience-control-btn.js"></script>
+
+</body>
+</html>

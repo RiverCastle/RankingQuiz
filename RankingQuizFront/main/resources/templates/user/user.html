@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/user/user.css">
+    <link rel="stylesheet" href="/css/user/quiz-button.css">
+    <link rel="stylesheet" href="/css/user/quiz-result-button.css">
+    <title>Ranking Quiz - User Profile</title>
+</head>
+<body>
+<div class="profile-container">
+    <div class="profile-header">
+        <h1 class="username">이름</h1> <button id="name-change-btn">이름 바꾸기</button>
+        <p class="point">현재 점수: <span id="pointValue"></span></p>
+        <img id="rankImage" class="rank-image">
+    </div>
+</div>
+<div class="button-container">
+    <button class="quiz-button" id="voca-quiz-button">Voca 퀴즈</button>
+    <button class="quiz-button" id="bible-quiz-button">Bible 퀴즈</button>
+    <button class="quiz-result-button" id="quizResultButton">틀린 문제 보기</button>
+</div>
+<script src="/js/common/config.js"></script>
+<script src="/js/user/user-rank.js"></script>
+<script src="/js/user/user.js"></script>
+<script src="/js/user/name-change.js"></script>
+<script src="/js/user/voca-quiz-button.js"></script>
+<script src="/js/user/bible-quiz-button.js"></script>
+<script src="/js/user/quiz-result-button.js"></script>
+</body>
+</html>

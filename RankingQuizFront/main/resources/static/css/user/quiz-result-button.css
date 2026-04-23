@@ -1,0 +1,15 @@
+.quiz-result-button {
+    padding: 10px 20px;
+    width: 50%;
+    height: 100%;
+    font-size: 100%;
+    color: white;
+    background-color: #66b3ff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.quiz-result-button:hover {
+    background-color: #00A3E0;
+}

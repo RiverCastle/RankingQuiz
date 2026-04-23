@@ -1,0 +1,7 @@
+#waitingMessageContainer {
+    font-size: 100%; /* 글자 크기 */
+    color: #ff4e50;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
