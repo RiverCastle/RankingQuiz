@@ -1,0 +1,75 @@
+/* =============================================
+   Typography
+   ============================================= */
+.brand-font {
+  font-family: 'Black Han Sans', sans-serif;
+}
+
+/* =============================================
+   Neon Text Effects
+   ============================================= */
+.neon-text {
+  text-shadow:
+    0 0 7px #00f0ff,
+    0 0 20px #00f0ff,
+    0 0 45px #00f0ff;
+}
+
+.neon-text-purple {
+  text-shadow:
+    0 0 7px #bf00ff,
+    0 0 20px #bf00ff,
+    0 0 45px #bf00ff;
+}
+
+/* =============================================
+   Input Effects
+   ============================================= */
+.neon-border:focus {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #00f0ff,
+    0 0 12px #00f0ff,
+    0 0 30px rgba(0, 240, 255, 0.3);
+}
+
+/* =============================================
+   Button Glow Effects
+   ============================================= */
+.btn-glow-blue {
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4), 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-glow-blue:hover {
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.7), 0 8px 30px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-glow-blue:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+}
+
+.btn-glow-purple {
+  box-shadow: 0 0 15px rgba(191, 0, 255, 0.4), 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-glow-purple:hover {
+  box-shadow: 0 0 30px rgba(191, 0, 255, 0.7), 0 8px 30px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-glow-purple:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* =============================================
+   Card
+   ============================================= */
+.card-glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

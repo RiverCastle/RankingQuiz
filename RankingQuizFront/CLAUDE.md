@@ -225,6 +225,133 @@ HTML 재작성 시 아래 ID는 반드시 유지해야 JS가 정상 동작함.
 
 ---
 
+## JS 파일 구조 — quiz / quiz-result 페이지
+
+### 파일 구성 (bible.html / voca.html 공통)
+
+| 파일 | 역할 |
+|------|------|
+| `bible-websocket-connect.js` / `voca-websocket-connect.js` | WebSocket 연결 및 메시지 라우팅 |
+| `item-control-func.js` | 문제 수신 처리, 타이머, 보기 버튼 생성 |
+| `quiz-result-func.js` | 채점 결과 수신 처리, 결과 UI 표시/숨김 |
+| `guideMessageFunc.js` | 안내 메시지 표시/숨김 |
+
+> bible/voca WebSocket 파일은 wsUrl 경로만 다르고 나머지 구조가 완전히 동일.
+> 재구현 시 공통 함수로 통합하고 wsUrl만 파라미터로 전달하는 구조 권장.
+
+---
+
+### WebSocket 연결 흐름
+
+```
+1. stop-button 클릭 이벤트 등록 (quizBoxOff / quizResultOff / guideMessageOff / socket.close)
+2. new WebSocket(wsUrl)
+3. onopen  → accessToken 존재 시 즉시 전송 → backgroundColorChange()
+4. onerror → console.error
+5. onclose → /feedback 새 창으로 오픈
+6. onmessage → dataType 분기 처리
+```
+
+### onmessage 분기 구조
+
+```
+dataType === 'QuizDto'
+  → quizResultOff(), guideMessageOff()
+  → quizItemUpdate(data.object)
+
+dataType === 'QuizResultDto'
+  → guideMessageOff(), quizBoxOff()
+  → quizResultUpdate(data.object)
+  → quizResultOn()
+
+dataType === 'GuideMessage'
+  → guideMessageOn(data.object)
+```
+
+---
+
+### quizItemUpdate(quizObject) 처리 흐름
+
+```
+1. answerData 객체 생성
+   { userName, quizId, writtenAt: new Date().toISOString(), userAnswer: null }
+
+2. messageWrapper = { dataType: 'AnswerDto', object: answerData }
+
+3. quizId, statement UI 업데이트
+
+4. 카운트다운 타이머 생성
+   finishedAt 배열([yyyy,MM,dd,HH,mm,ss]) → new Date() 변환
+   setInterval(100ms)
+     → timeLeft > 0 : countdown 텍스트 갱신 (소수점 1자리)
+     → timeLeft <= 0 : clearInterval, quizBoxOff()
+       ※ 타이머 만료 시 서버로 별도 전송 없음 (서버가 자체 처리)
+
+5. optionsContainer 초기화 후 options 랜덤 셔플
+   각 option → <button> 생성
+   button.onclick:
+     answerData.userAnswer = option
+     socket.send(JSON.stringify(messageWrapper))
+     클릭 버튼 → classList.add('clicked')
+     나머지 버튼 → disabled = true
+     ※ 클릭된 버튼 본인은 disabled 미처리 (재구현 시 개선 필요)
+
+6. quizBoxOn()
+```
+
+---
+
+### quizResultUpdate(quizResultObject) 처리 흐름
+
+```
+correct === true  → isCorrect: "✅ 정답입니다!" (green)
+correct === false → isCorrect: "❌ 오답입니다." (red)
+
+statement  → "문제: " + quizResultObject.statement
+quizAnswer → "정답: " + quizResultObject.answer
+myAnswer   → "내 답변: " + quizResultObject.myAnswer
+             (null이면 "내 답변: 없음 😭")
+
+※ quizResultObject.userName (우승자 이름) 필드 존재하나 미사용
+  재구현 시 quizWinnerName 요소에 할당 필요
+```
+
+---
+
+### UI 표시/숨김 함수 구조
+
+```
+quizBoxOn()           → quizBox.classList.remove('hidden'), optionsContainer.display = 'grid'
+quizBoxOff()          → quizBox.classList.add('hidden'),    optionsContainer.display = 'none'
+quizResultOn()        → quizResultContainer.classList.remove('hidden')
+quizResultOff()       → quizResultContainer.classList.add('hidden')
+guideMessageOn(obj)   → obj.display === true 일 때 guideMessageContainer 텍스트 설정 후 hidden 제거
+guideMessageOff()     → guideMessageContainer 텍스트 초기화 + hidden 추가
+```
+
+---
+
+### quiz-result.js 처리 흐름
+
+```
+GET /quiz-results/my-results
+  Headers: Authorization: Bearer {accessToken}
+           Content-Type: application/json
+
+응답 배열 순회 → quiz-results-container에 동적 렌더링
+각 항목 구조:
+  .quiz-result
+    .statement   → result.statement
+    .answer-container
+      .answer    → "정답: " + result.answer
+      .my-answer → "제출: " + result.myAnswer
+
+※ accessToken을 파일 내 선언 없이 전역 참조
+  재구현 시 sessionStorage.getItem('accessToken') 명시 필요
+```
+
+---
+
 ## Spring Boot 서버 정보
 
 | 항목 | 값 |
