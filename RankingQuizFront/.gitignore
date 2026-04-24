@@ -1,0 +1,22 @@
+# Gradle
+.gradle/
+build/
+
+# Java
+*.class
+*.jar
+*.war
+
+# Spring Boot
+src/main/resources/application-*.properties
+src/main/resources/application-*.yml
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
