@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('성경 퀴즈 · RankingQuiz', @{/css/quiz.css})}"></head>
+
+<body class="font-display min-h-screen bg-surface-base text-white overflow-x-hidden">
+
+  <!-- Background effects -->
+  <div class="fixed inset-0 bg-grid pointer-events-none"></div>
+  <div class="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-neon-blue opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="fixed bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-neon-purple opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+
+  <div class="relative z-10 flex flex-col min-h-screen max-w-md mx-auto px-5 pb-10">
+
+    <!-- Top bar -->
+    <header class="flex items-center justify-between pt-8 pb-4">
+      <h1 class="brand-font text-2xl">
+        <span class="text-white">Ranking</span><span class="text-neon-blue neon-text">Quiz</span>
+      </h1>
+      <div class="flex items-center gap-3">
+        <span class="rank-badge text-neon-purple text-xs font-semibold px-3 py-1 rounded-full tracking-widest uppercase">✝️ 성경</span>
+        <button
+          id="stop-button"
+          class="text-xs font-semibold text-white/40 hover:text-white/80 border border-white/10 hover:border-white/30 px-3 py-1.5 rounded-xl transition-all duration-200"
+        >
+          나가기
+        </button>
+      </div>
+    </header>
+
+    <!-- Guide Message (대기/안내 상태) -->
+    <div id="guideMessageContainer" class="card-glass rounded-3xl p-8 mt-6 text-center">
+      <p class="text-4xl mb-4">⏳</p>
+      <p id="guideMessageText" class="text-white/80 text-base font-medium leading-relaxed">연결 중...</p>
+    </div>
+
+    <!-- Quiz Box (문제 출제 상태) -->
+    <div id="quizBox" class="hidden mt-6 flex flex-col gap-4">
+
+      <!-- 문제 헤더: 번호 + 타이머 -->
+      <div class="flex items-center justify-between px-1">
+        <span class="text-white/40 text-sm font-semibold tracking-wider">
+          Q.<span id="quizId" class="text-white/70 ml-1">-</span>
+        </span>
+        <div class="flex items-center gap-2">
+          <span class="text-white/30 text-xs">남은 시간</span>
+          <span id="countdown" class="text-neon-purple neon-text-purple text-2xl font-black tabular-nums">--</span>
+          <span class="text-white/30 text-xs">초</span>
+        </div>
+      </div>
+
+      <!-- 퀴즈 폼 -->
+      <div id="quizForm" class="card-glass rounded-3xl p-6">
+        <p id="quizStatement" class="text-white font-bold text-lg leading-snug mb-6 min-h-[3rem]"></p>
+        <div
+          id="optionsContainer"
+          class="grid grid-cols-1 gap-3"
+          style="display: none;"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Quiz Result (채점 결과 상태) -->
+    <div id="quizResultContainer" class="hidden card-glass rounded-3xl p-6 mt-6 flex flex-col gap-4">
+
+      <!-- 정답 여부 -->
+      <p id="isCorrect" class="text-center text-xl font-black"></p>
+
+      <div class="h-px bg-white/10"></div>
+
+      <!-- 문제 / 정답 / 내 답변 -->
+      <div class="flex flex-col gap-2">
+        <p id="statement" class="text-white/60 text-sm leading-relaxed"></p>
+        <p id="quizAnswer" class="text-neon-purple font-bold text-base"></p>
+        <p id="myAnswer" class="text-white/50 text-sm"></p>
+      </div>
+
+      <div class="h-px bg-white/10"></div>
+
+      <!-- 우승자 -->
+      <p id="quizWinnerName" class="text-center text-neon-purple neon-text-purple text-sm font-semibold"></p>
+
+    </div>
+
+    <!-- Footer (공통) -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+  </div>
+
+  <!-- Page-specific scripts (의존 순서 준수) -->
+  <script th:src="@{/js/quiz/guide-message-func.js}"></script>
+  <script th:src="@{/js/quiz/quiz-result-func.js}"></script>
+  <script th:src="@{/js/quiz/item-control-func.js}"></script>
+  <script th:src="@{/js/quiz/websocket-connect.js}"></script>
+  <script th:src="@{/js/quiz/bible-websocket-connect.js}"></script>
+
+</body>
+</html>

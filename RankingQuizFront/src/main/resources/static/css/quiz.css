@@ -1,0 +1,74 @@
+/* =============================================
+   Countdown Timer
+   ============================================= */
+.countdown-urgent {
+    color: #ff2d78;
+    text-shadow:
+        0 0 7px #ff2d78,
+        0 0 20px #ff2d78,
+        0 0 45px #ff2d78;
+    animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 1; }
+    to   { opacity: 0.6; }
+}
+
+/* =============================================
+   Option Buttons
+   ============================================= */
+.option-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+}
+
+.option-btn:hover:not(:disabled) {
+    background: rgba(0, 240, 255, 0.1);
+    border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.option-btn:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+}
+
+.option-btn.option-selected {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: #00f0ff;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+    color: #00f0ff;
+    cursor: not-allowed;
+}
+
+.option-btn:disabled:not(.option-selected) {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* =============================================
+   Quiz Result
+   ============================================= */
+.result-correct {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #4ade80;
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+.result-incorrect {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ff2d78;
+    text-shadow: 0 0 10px rgba(255, 45, 120, 0.5);
+}

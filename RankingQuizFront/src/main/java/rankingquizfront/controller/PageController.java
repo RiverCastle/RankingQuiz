@@ -10,4 +10,14 @@ public class PageController {
     public String home() {
         return "home/home";
     }
+
+    @GetMapping("/quiz/voca")
+    public String quizVoca() {
+        return "quiz/voca/voca";
+    }
+
+    @GetMapping("/quiz/bible")
+    public String quizBible() {
+        return "quiz/bible/bible";
+    }
 }
