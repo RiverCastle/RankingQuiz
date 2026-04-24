@@ -1,0 +1,55 @@
+// bible / voca 공통 WebSocket 연결 함수
+// wsPath: 'bible' | 'voca'
+function initQuizWebSocket(wsPath) {
+    const wsUrl  = websocket_protocol + BACKEND_BASE_URL + '/ws/quiz/' + wsPath;
+    const socket = new WebSocket(wsUrl);
+
+    // 그만하기 버튼
+    document.getElementById('stop-button').addEventListener('click', function () {
+        quizBoxOff();
+        quizResultOff();
+        guideMessageOff();
+        socket.close();
+    });
+
+    socket.onopen = function () {
+        const textEl = document.getElementById('guideMessageText');
+        if (textEl) textEl.textContent = '연결되었습니다. 퀴즈를 기다리는 중...';
+
+        const accessToken = sessionStorage.getItem('accessToken');
+        if (accessToken) {
+            socket.send(JSON.stringify({
+                dataType: 'AccessToken',
+                object:   accessToken
+            }));
+        }
+    };
+
+    socket.onerror = function (error) {
+        console.error('WebSocket 오류:', error);
+    };
+
+    socket.onclose = function () {
+        window.open('/feedback', '_blank');
+    };
+
+    socket.onmessage = function (event) {
+        const data     = JSON.parse(event.data);
+        const dataType = data.dataType;
+
+        if (dataType === 'QuizDto') {
+            quizResultOff();
+            guideMessageOff();
+            quizItemUpdate(data.object, socket);
+
+        } else if (dataType === 'QuizResultDto') {
+            guideMessageOff();
+            quizBoxOff();
+            quizResultUpdate(data.object);
+            quizResultOn();
+
+        } else if (dataType === 'GuideMessage') {
+            guideMessageOn(data.object);
+        }
+    };
+}
