@@ -1,1 +1,5 @@
 rootProject.name = 'RankingQuiz'
+
+include ':core'
+include ':admin'
+include ':app'

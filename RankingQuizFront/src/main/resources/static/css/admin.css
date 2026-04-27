@@ -1,0 +1,163 @@
+/* =============================================
+   Admin Tab
+   ============================================= */
+.admin-tab {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.admin-tab.active {
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #00f0ff;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+}
+
+.admin-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* =============================================
+   Toggle Switch
+   ============================================= */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.toggle-switch input:checked + .toggle-blue {
+  background: rgba(0, 240, 255, 0.2);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.toggle-switch input:checked + .toggle-blue::before {
+  transform: translate(24px, -50%);
+  background: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+}
+
+.toggle-switch input:checked + .toggle-purple {
+  background: rgba(191, 0, 255, 0.2);
+  border-color: rgba(191, 0, 255, 0.5);
+  box-shadow: 0 0 12px rgba(191, 0, 255, 0.3);
+}
+
+.toggle-switch input:checked + .toggle-purple::before {
+  transform: translate(24px, -50%);
+  background: #bf00ff;
+  box-shadow: 0 0 8px rgba(191, 0, 255, 0.6);
+}
+
+/* =============================================
+   Status Badge
+   ============================================= */
+.status-badge.on {
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #00f0ff;
+}
+
+.status-badge.off {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* =============================================
+   Form Fields
+   ============================================= */
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   Radio Card
+   ============================================= */
+.radio-card {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.radio-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.radio-card.selected {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.4);
+  color: #00f0ff;
+}
+
+/* =============================================
+   Result Message
+   ============================================= */
+#registerResult.success {
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #00f0ff;
+}
+
+#registerResult.error {
+  background: rgba(255, 60, 100, 0.08);
+  border: 1px solid rgba(255, 60, 100, 0.3);
+  color: #ff6080;
+}
+
+/* =============================================
+   Toast
+   ============================================= */
+#statusToast {
+  transition: opacity 0.3s ease;
+}
+
+#statusToast.fade-out {
+  opacity: 0;
+}

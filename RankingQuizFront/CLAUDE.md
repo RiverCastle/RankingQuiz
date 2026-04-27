@@ -30,6 +30,7 @@ const websocket_protocol = 'wss://';
 | `/quiz-result` | `templates/quiz-result/quiz-result.html` |
 | `/user` | `templates/user/user.html` |
 | `/feedback` | `templates/feedback/feedback.html` |
+| `/admin` | `templates/admin/admin.html` |
 
 ---
 
@@ -41,6 +42,14 @@ const websocket_protocol = 'wss://';
 |--------|------|------|
 | POST | `/auth/code/kakao` | 카카오 Authorization Code → JWT 발급 |
 | POST | `/user-feedback` | 피드백 제출 |
+
+### ROLE_ADMIN 필요
+
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| POST | `/quiz-content` | 퀴즈 문항 등록 (배열) |
+| GET | `/quiz-status` | 전체 퀴즈 활성화 상태 조회 |
+| PUT | `/quiz-status/{category}?enabled=true\|false` | 퀴즈 활성화 상태 변경 (ENG_VOCA \| BIBLE) |
 
 ### Bearer 토큰 필요 (`Authorization: Bearer {accessToken}`)
 
