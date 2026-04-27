@@ -38,14 +38,19 @@ public class VocaQuizDataCenter extends QuizDataCenter {
     private final Map<String, QuizResultDto> results = new ConcurrentHashMap<>();
     @Getter
     private String winnerName;
-    private final Map<Long, Boolean> haveAnswered = new ConcurrentHashMap<>();
+    // [Fix] Long → String: memberId(인증) 또는 sessionId(비회원) 모두 수용
+    private final Map<String, Boolean> haveAnswered = new ConcurrentHashMap<>();
 
     public void handle() {
         this.presentState.handle(this);
     }
 
     public void loadAnswerFromUser(AnswerDto answerDto) {
-        if (haveAnswered.putIfAbsent(answerDto.getMemberId(), true) == null) {
+        // [Fix] 비회원(memberId=null)은 ConcurrentHashMap이 null key를 허용하지 않으므로 sessionId로 대체
+        String dedupeKey = answerDto.getMemberId() != null
+                ? answerDto.getMemberId().toString()
+                : answerDto.getSessionId();
+        if (haveAnswered.putIfAbsent(dedupeKey, true) == null) {
             answerQueue.add(answerDto);
         }
     }

@@ -1,0 +1,1 @@
+initQuizWebSocket('voca');

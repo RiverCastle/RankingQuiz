@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('RankingQuiz', @{/css/home.css})}"></head>
+
+<body class="font-display min-h-screen bg-surface-base text-white overflow-x-hidden">
+
+  <!-- Background effects -->
+  <div class="fixed inset-0 bg-grid pointer-events-none"></div>
+  <div class="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-neon-blue opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="fixed bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-neon-purple opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+
+  <div class="relative z-10 flex flex-col min-h-screen max-w-md mx-auto px-5 pb-10">
+
+    <!-- Header -->
+    <header class="pt-12 pb-6 text-center">
+      <div class="inline-flex items-center gap-2 rank-badge px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest text-neon-blue mb-6 uppercase">
+        <span class="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse-slow inline-block"></span>
+        Live Quiz
+      </div>
+
+      <h1 class="brand-font text-5xl leading-none tracking-tight mb-2">
+        <span class="text-white">Ranking</span><span class="text-neon-blue neon-text">Quiz</span>
+      </h1>
+      <p class="text-sm text-white/40 tracking-wider mt-3">실시간 랭킹 퀴즈 배틀</p>
+    </header>
+
+    <!-- Hero Icon -->
+    <div class="flex justify-center my-4 animate-float">
+      <div class="relative w-28 h-28">
+        <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-neon-blue/[13] to-neon-purple/[13] border border-white/10 flex items-center justify-center">
+          <span class="text-5xl">⚡</span>
+        </div>
+        <div class="absolute -inset-1 rounded-3xl border border-neon-blue/20 blur-sm"></div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card-glass rounded-3xl p-6 mt-6">
+
+      <p class="text-center text-white/60 text-sm mb-5">닉네임으로 바로 참여하기</p>
+
+      <!-- Nickname input -->
+      <div class="relative mb-4">
+        <input
+          id="nameInput"
+          type="text"
+          maxlength="10"
+          placeholder="닉네임을 입력하세요"
+          autocomplete="off"
+          class="neon-border w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-white/25 text-base transition-all duration-200"
+        />
+      </div>
+
+      <!-- Quiz buttons -->
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <button
+          id="voca-quizButton"
+          class="btn-glow-blue bg-gradient-to-br from-neon-blue to-neon-blue-dark text-surface-base font-bold rounded-2xl py-4 text-sm tracking-wide"
+        >
+          📖 단어 퀴즈
+        </button>
+        <button
+          id="bible-quizButton"
+          class="btn-glow-purple bg-gradient-to-br from-neon-purple to-neon-purple-dark text-white font-bold rounded-2xl py-4 text-sm tracking-wide"
+        >
+          ✝️ 성경 퀴즈
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="flex items-center gap-3 my-5">
+        <div class="flex-1 h-px bg-gradient-to-r from-transparent to-white/15"></div>
+        <span class="text-white/30 text-xs font-semibold tracking-widest px-2">OR</span>
+        <div class="flex-1 h-px bg-gradient-to-l from-transparent to-white/15"></div>
+      </div>
+
+      <!-- Kakao login -->
+      <button
+        id="kakaoLoginBtn"
+        class="btn-kakao w-full flex items-center justify-center gap-3 bg-kakao-yellow hover:bg-kakao-hover active:scale-[0.98] text-kakao-dark font-bold rounded-2xl py-4 text-sm tracking-wide transition-all duration-200"
+      >
+        <svg width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M9 0.75C4.44 0.75 0.75 3.63 0.75 7.19c0 2.28 1.5 4.28 3.77 5.45l-.96 3.57a.25.25 0 0 0 .38.27L8.1 13.9c.3.03.6.05.9.05 4.56 0 8.25-2.88 8.25-6.44C17.25 3.63 13.56.75 9 .75z" fill="#191919"/>
+        </svg>
+        카카오 로그인
+      </button>
+
+    </div>
+
+    <!-- Footer (공통) -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+  </div>
+
+  <!-- Page-specific scripts -->
+  <script th:src="@{/js/kakao-login.js}"></script>
+  <script th:src="@{/js/voca-quiz-button.js}"></script>
+  <script th:src="@{/js/bible-quiz-button.js}"></script>
+  <script th:src="@{/js/home.js}"></script>
+
+</body>
+</html>

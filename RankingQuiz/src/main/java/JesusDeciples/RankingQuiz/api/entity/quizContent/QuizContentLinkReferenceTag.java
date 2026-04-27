@@ -15,7 +15,7 @@ public class QuizContentLinkReferenceTag {
     @ManyToOne
     private QuizContent quizContent;
 
-    @ManyToOne(cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    @ManyToOne
     private ReferenceTag referenceTag;
     public QuizContentLinkReferenceTag(ReferenceTag referenceTag) {
         this.referenceTag = referenceTag;

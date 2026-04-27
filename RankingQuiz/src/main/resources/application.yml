@@ -1,0 +1,55 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT-SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+              - account_email
+              - profile_nickname
+        provider:
+          kakao:
+            authorization-uri: ${KAKAO_AUTH_URL}/oauth/authorize
+            token-uri: ${KAKAO_AUTH_URL}/oauth/token
+            user-info-uri: ${KAKAO_API_URL}/v2/user/me
+            user-name-attribute: id
+  datasource:
+    url: jdbc:h2:mem:rankingquiz;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8090
+
+# JWT
+SECRET: local-dev-secret-key-minimum-256-bits-long-placeholder
+
+# Kakao OAuth (로컬 개발용 더미값 - 실제 카카오 로그인 불가)
+KAKAO_CLIENT_ID: local-kakao-client-id
+KAKAO_CLIENT-SECRET: local-kakao-client-secret
+KAKAO_REDIRECT_URI: http://localhost:8080/oauth2/callback/kakao
+KAKAO_AUTH_URL: https://kauth.kakao.com
+KAKAO_API_URL: https://kapi.kakao.com
+
+# GitHub Issue (로컬 개발용 더미값)
+ISSUE_POST_TOKEN: local-github-token
+RANKING_QUIZ_BACKEND_REPO_ISSUE: https://api.github.com/repos/placeholder/backend/issues
+RANKING_QUIZ_FRONTEND_REPO_ISSUE: https://api.github.com/repos/placeholder/frontend/issues
