@@ -17,7 +17,10 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 @RequiredArgsConstructor
@@ -27,26 +30,35 @@ public class BibleQuizDataCenter extends QuizDataCenter {
     private Quiz presentQuiz;
     @Getter @Setter
     private DataCenterState presentState = new WAITING();
-    private final Long waitingTime = 3L; // 퀴즈 수거 대기 시간
+    private final Long waitingTime = 3L;
     private final QuizScoreFacade quizScoreFacade;
     private final QuizQuizContentFacade quizQuizContentFacade;
-    private final Queue<AnswerDto> answerQueue = new LinkedList<>();
+    // [Fix] LinkedList → ConcurrentLinkedQueue (스레드 안전)
+    private final Queue<AnswerDto> answerQueue = new ConcurrentLinkedQueue<>();
     @Getter
-    private final Map<String, QuizResultDto> results = new HashMap<>();
+    // [Fix] HashMap → ConcurrentHashMap (스레드 안전)
+    private final Map<String, QuizResultDto> results = new ConcurrentHashMap<>();
     @Getter
     private String winnerName;
+    // [Fix] sessionId 기반 중복 제출 방지
+    private final Map<String, Boolean> haveAnswered = new ConcurrentHashMap<>();
 
     public void handle() {
         this.presentState.handle(this);
     }
 
     public void loadAnswerFromUser(AnswerDto answerDto) {
-        answerQueue.add(answerDto);
+        // [Fix] 동일 세션의 중복 제출 차단
+        if (haveAnswered.putIfAbsent(answerDto.getSessionId(), true) == null) {
+            answerQueue.add(answerDto);
+        }
     }
 
     private void clearAnswers() {
         answerQueue.clear();
+        haveAnswered.clear();
     }
+
     private void clearResults() {
         results.clear();
     }
@@ -63,7 +75,7 @@ public class BibleQuizDataCenter extends QuizDataCenter {
 
     public void score() {
         clearWinnerName();
-        clearResults(); // 채점 시작 전 채점 결과 Collection clear
+        clearResults();
         for (AnswerDto answerDto : answerQueue) {
             QuizResultDto resultDto = quizScoreFacade.score(presentQuiz.getId(), answerDto);
             if (winnerName == null && resultDto.isCorrect()) {
@@ -86,6 +98,7 @@ public class BibleQuizDataCenter extends QuizDataCenter {
         dto.setFinishedAt(presentQuiz.getFinishedAt());
         return dto;
     }
+
     private void clearWinnerName() {
         this.winnerName = null;
     }
