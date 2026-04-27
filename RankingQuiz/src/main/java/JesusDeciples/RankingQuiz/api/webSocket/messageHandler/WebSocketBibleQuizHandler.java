@@ -145,31 +145,32 @@ public class WebSocketBibleQuizHandler implements WebSocketHandler {
     }
 
     private void sendQuizResultMessage() throws IOException {
-        Set<String> sessionIds = sessions.keySet(); // 접속 세션 IDs
+        Set<String> sessionIds = sessions.keySet();
         Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults(category);
-        Set<String> sessionIdsOfParticipants = results.keySet(); // 퀴즈에 참여한 세션 ID
+        Set<String> sessionIdsOfParticipants = results.keySet();
 
-        String winner = (quizDataCenterMediator.getQuizWinnerName(category) == null) ?
-                "없습니다." : quizDataCenterMediator.getQuizWinnerName(category) + "님입니다.";
-        GuideMessage winner_notification = new GuideMessage("이번 퀴즈의 우승자는 " + winner);
-        winner_notification.setDisplay(true);
-        guideMessageBundle.setWinner_notification(winner_notification);
-        TextMessage winnerAnouncementTextMessage =
-                textMessageFactory.produceTextMessage(guideMessageBundle.getWinner_notification());
+        String winnerName = quizDataCenterMediator.getQuizWinnerName(category);
+        String winnerText = winnerName == null ? "없습니다." : winnerName + "님입니다.";
+        // [Fix] 싱글턴 GuideMessageBundle에 저장하지 않고 로컬 인스턴스 직접 사용
+        GuideMessage winnerNotification = new GuideMessage("이번 퀴즈의 우승자는 " + winnerText);
+        winnerNotification.setDisplay(true);
+        TextMessage winnerAnnouncementMessage = textMessageFactory.produceTextMessage(winnerNotification);
 
-        for (String sessionId : sessionIds) {// 전체 세션
+        for (String sessionId : sessionIds) {
+            // [Fix] 루프 중 세션이 닫힌 경우 NPE 방지
+            WebSocketSession session = sessions.get(sessionId);
+            if (session == null || !session.isOpen()) continue;
+
             if (sessionIdsOfParticipants.contains(sessionId)) {
-                // 활성 참가자 중 이전 퀴즈 참가자에게 퀴즈 결과 전송
-                TextMessage textMessage = // QuizResult -> TextMessage 변환
-                        textMessageFactory.produceTextMessage(results.get(sessionId));
-                sessions.get(sessionId).sendMessage(textMessage);
-                sessions.get(sessionId).sendMessage(winnerAnouncementTextMessage);
+                TextMessage resultMessage = textMessageFactory.produceTextMessage(results.get(sessionId));
+                session.sendMessage(resultMessage);
+                session.sendMessage(winnerAnnouncementMessage);
             } else {
-                GuideMessage guideMessage = guideMessageBundle.getNotParticipatedMessage();
-                guideMessage.setDisplay(true);
-                TextMessage message =
-                        textMessageFactory.produceTextMessage(guideMessage);
-                sessions.get(sessionId).sendMessage(message);
+                // [Fix] 싱글턴 GuideMessage를 변이하지 않고 새 인스턴스 생성
+                GuideMessage notParticipated = new GuideMessage(
+                        guideMessageBundle.getNotParticipatedMessage().getMessage());
+                notParticipated.setDisplay(true);
+                session.sendMessage(textMessageFactory.produceTextMessage(notParticipated));
             }
         }
     }
