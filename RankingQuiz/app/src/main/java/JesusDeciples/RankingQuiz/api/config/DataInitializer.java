@@ -28,6 +28,7 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        if (referenceTagRepository.count() > 0) return;
         Tags tags = saveTags();
         initEngVocaQuizContents(tags);
         initBibleQuizContents(tags);
