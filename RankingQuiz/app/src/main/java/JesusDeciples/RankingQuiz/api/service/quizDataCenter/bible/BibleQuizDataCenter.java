@@ -110,4 +110,9 @@ public class BibleQuizDataCenter extends QuizDataCenter {
         clearResults();
         clearWinnerName();
     }
+
+    @Override
+    public QuizCategory getCategory() {
+        return QuizCategory.BIBLE;
+    }
 }
