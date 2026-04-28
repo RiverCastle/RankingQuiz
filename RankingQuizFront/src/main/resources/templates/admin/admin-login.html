@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('RankingQuiz 관리자 로그인', @{/css/admin.css})}"></head>
+
+<body class="font-display min-h-screen bg-surface-base text-white overflow-x-hidden">
+
+  <div class="fixed inset-0 bg-grid pointer-events-none"></div>
+  <div class="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-neon-blue opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="fixed bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-neon-purple opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+
+  <div class="relative z-10 flex flex-col min-h-screen max-w-lg mx-auto px-5 pb-10">
+
+    <header class="pt-10 pb-6 flex items-center justify-between">
+      <div>
+        <p class="text-white/40 text-xs tracking-widest uppercase mb-1">Admin Panel</p>
+        <h1 class="brand-font text-3xl leading-none">
+          <span class="text-white">Ranking</span><span class="text-neon-blue neon-text">Quiz</span>
+          <span class="text-white/60 text-xl ml-2">관리자 로그인</span>
+        </h1>
+      </div>
+      <a href="/" class="text-white/40 hover:text-white/70 text-sm transition-colors">← 홈</a>
+    </header>
+
+    <div class="card-glass rounded-3xl p-8">
+      <p class="text-4xl mb-4 text-center">🔒</p>
+      <p class="text-white/60 text-sm mb-6 text-center">관리자 계정으로 로그인하세요</p>
+      <div class="space-y-3">
+        <input id="adminId" type="text" placeholder="아이디" autocomplete="username"
+          class="neon-border w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white placeholder-white/25 text-sm" />
+        <input id="adminPw" type="password" placeholder="비밀번호" autocomplete="current-password"
+          class="neon-border w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white placeholder-white/25 text-sm" />
+        <p id="loginError" class="hidden text-red-400 text-xs text-center pt-1">아이디 또는 비밀번호가 올바르지 않습니다.</p>
+        <button id="loginBtn"
+          class="btn-glow-blue w-full bg-gradient-to-br from-neon-blue to-neon-blue-dark text-surface-base font-bold rounded-2xl py-3 text-sm tracking-wide mt-2">
+          로그인
+        </button>
+      </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </div>
+
+  <script th:src="@{/js/config.js}"></script>
+  <script th:src="@{/js/admin-login.js}"></script>
+
+</body>
+</html>
