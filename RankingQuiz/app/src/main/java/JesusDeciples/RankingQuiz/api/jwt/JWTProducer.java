@@ -6,6 +6,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,10 +18,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Component
 public class JWTProducer {
@@ -29,7 +30,7 @@ public class JWTProducer {
                 .setSubject(subject)
                 .claim("auth", authority)
                 .setExpiration(expiredAt)
-                .signWith(SignatureAlgorithm.HS256, key)
+                .signWith(SignatureAlgorithm.HS256, key.getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
@@ -47,7 +48,7 @@ public class JWTProducer {
     private Claims parseClaims(String accessToken) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(key)
+                    .setSigningKey(key.getBytes(StandardCharsets.UTF_8))
                     .build()
                     .parseClaimsJws(accessToken)
                     .getBody();

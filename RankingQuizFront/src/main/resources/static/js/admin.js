@@ -1,19 +1,11 @@
 // =============================================
 // 인증 확인 및 초기화
 // =============================================
-const accessToken = sessionStorage.getItem('accessToken');
+const accessToken = sessionStorage.getItem('adminToken');
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!accessToken) {
-    document.getElementById('loginRequired').classList.remove('hidden');
-    document.getElementById('adminLoginBtn').addEventListener('click', () => {
-      const kakaoAuthUrl =
-        `https://kauth.kakao.com/oauth/authorize` +
-        `?client_id=41ad8e26ac1e92bfcac84f788d229cef` +
-        `&redirect_uri=${protocol}${FRONTEND_BASE_URL}/login-wait` +
-        `&response_type=code`;
-      window.location.href = kakaoAuthUrl;
-    });
+    window.location.href = '/admin/login';
     return;
   }
 
