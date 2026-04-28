@@ -31,7 +31,9 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/quiz-content").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/quiz-status/public").permitAll()
                         .requestMatchers("/api/quiz-status/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/quiz-sessions/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/member/**").authenticated()
                         .requestMatchers("/api/quiz-results/**").authenticated()
                         .anyRequest().permitAll()

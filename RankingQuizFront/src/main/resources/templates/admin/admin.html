@@ -59,8 +59,10 @@
               <span class="toggle-slider toggle-blue"></span>
             </label>
           </div>
-          <div id="status-ENG_VOCA" class="status-badge mt-4 text-xs font-semibold px-3 py-1.5 rounded-full inline-block">
-            확인 중...
+          <div class="mt-4 flex items-center gap-2">
+            <span class="text-white/40 text-xs">현재 접속자</span>
+            <span id="session-count-ENG_VOCA" class="text-neon-blue font-bold text-sm">-</span>
+            <span class="text-white/40 text-xs">명</span>
           </div>
         </div>
 
@@ -81,8 +83,10 @@
               <span class="toggle-slider toggle-purple"></span>
             </label>
           </div>
-          <div id="status-BIBLE" class="status-badge mt-4 text-xs font-semibold px-3 py-1.5 rounded-full inline-block">
-            확인 중...
+          <div class="mt-4 flex items-center gap-2">
+            <span class="text-white/40 text-xs">현재 접속자</span>
+            <span id="session-count-BIBLE" class="text-neon-purple font-bold text-sm">-</span>
+            <span class="text-white/40 text-xs">명</span>
           </div>
         </div>
 
@@ -211,6 +215,7 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
   </div>
 
+  <script th:src="@{/js/config.js}"></script>
   <script th:src="@{/js/admin.js}"></script>
 
 </body>
