@@ -1,4 +1,26 @@
 /* =============================================
+   Quiz Content Area — 단일 컨테이너 레이아웃 안정화
+   ============================================= */
+.quiz-content-area {
+    display: grid;
+    min-height: 320px;
+    align-items: start;
+}
+
+/* 모든 섹션은 같은 그리드 셀에 겹쳐 배치 (레이아웃 공간 고정) */
+.quiz-section {
+    grid-area: 1 / 1;
+    transition: opacity 0.2s ease;
+}
+
+/* 비활성 섹션: display:none 대신 visibility+opacity로 공간 유지 */
+.quiz-section--hidden {
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+}
+
+/* =============================================
    Countdown Timer
    ============================================= */
 .countdown-urgent {

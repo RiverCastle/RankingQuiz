@@ -16,3 +16,8 @@ build/
 # =============================================
 src/main/resources/application-*.properties
 src/main/resources/application-*.yml
+
+# =============================================
+# Node.js
+# =============================================
+node_modules/

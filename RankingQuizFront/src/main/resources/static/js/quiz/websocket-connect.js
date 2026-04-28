@@ -4,7 +4,6 @@ function initQuizWebSocket(wsPath) {
     const wsUrl  = websocket_protocol + BACKEND_BASE_URL + '/ws/quiz/' + wsPath;
     const socket = new WebSocket(wsUrl);
 
-    // 그만하기 버튼
     document.getElementById('stop-button').addEventListener('click', function () {
         quizBoxOff();
         quizResultOff();
@@ -34,22 +33,25 @@ function initQuizWebSocket(wsPath) {
     };
 
     socket.onmessage = function (event) {
-        const data     = JSON.parse(event.data);
-        const dataType = data.dataType;
+        const data = JSON.parse(event.data);
 
-        if (dataType === 'QuizDto') {
-            quizResultOff();
-            guideMessageOff();
-            quizItemUpdate(data.object, socket);
+        switch (data.dataType) {
+            case 'QuizDto':
+                quizResultOff();
+                guideMessageOff();
+                quizItemUpdate(data.object, socket);
+                break;
 
-        } else if (dataType === 'QuizResultDto') {
-            guideMessageOff();
-            quizBoxOff();
-            quizResultUpdate(data.object);
-            quizResultOn();
+            case 'QuizResultDto':
+                guideMessageOff();
+                quizBoxOff();
+                quizResultUpdate(data.object);
+                quizResultOn();
+                break;
 
-        } else if (dataType === 'GuideMessage') {
-            guideMessageOn(data.object);
+            case 'GuideMessage':
+                guideMessageOn(data.object);
+                break;
         }
     };
 }

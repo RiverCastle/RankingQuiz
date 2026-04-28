@@ -154,6 +154,10 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
         return false;
     }
 
+    public int getSessionCount() {
+        return sessions.size();
+    }
+
     private void sendQuizResultMessage() throws IOException {
         Set<String> sessionIds = sessions.keySet();
         Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults(category);
