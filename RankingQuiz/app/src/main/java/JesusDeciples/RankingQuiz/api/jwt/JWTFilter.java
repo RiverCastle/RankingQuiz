@@ -17,23 +17,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestURI = request.getRequestURI();
-
-        if (requestURI.startsWith("/api/quiz-content") ||
-                requestURI.startsWith("/api/member") ||
-                requestURI.startsWith("/api/quiz-results/my-results")) {
-            String bearerToken = request.getHeader("Authorization");
-            String jwt;
-            if (bearerToken == null) jwt = null;
-            else {
-                if (bearerToken.startsWith("Bearer ")) {
-                    jwt = bearerToken.substring(7);
-                } else jwt = null;
-            }
-            if (jwt == null) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증 토큰이 없습니다.");
-                return;
-            }
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String jwt = bearerToken.substring(7);
             Authentication authentication = jwtProducer.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

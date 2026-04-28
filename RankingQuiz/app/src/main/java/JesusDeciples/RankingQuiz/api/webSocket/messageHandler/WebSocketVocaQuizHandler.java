@@ -1,5 +1,6 @@
 package JesusDeciples.RankingQuiz.api.webSocket.messageHandler;
 
+import JesusDeciples.RankingQuiz.api.admin.service.QuizStatusService;
 import JesusDeciples.RankingQuiz.api.dto.GuideMessage;
 import JesusDeciples.RankingQuiz.api.dto.GuideMessageBundle;
 import JesusDeciples.RankingQuiz.api.dto.MessageWrapper;
@@ -31,6 +32,7 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
     private final GuideMessageBundle guideMessageBundle;
     private final ObjectMapper objectMapper;
     private final AccessTokenMessageHandler accessTokenMessageHandler;
+    private final QuizStatusService quizStatusService;
 
     @Scheduled(fixedDelay = 1000)
     private void abcd() throws IOException, InterruptedException {
@@ -52,6 +54,14 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
+        if (!quizStatusService.getStatus(category)) {
+            GuideMessage disabledMsg = new GuideMessage("현재 단어 퀴즈는 준비 중입니다. 잠시 후 다시 시도해주세요.");
+            disabledMsg.setDisplay(true);
+            session.sendMessage(textMessageFactory.produceTextMessage(disabledMsg));
+            session.close(CloseStatus.NOT_ACCEPTABLE);
+            return;
+        }
+
         DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState(category);
         sessions.put(session.getId(), session);
         // 대기상태 중 새 세션

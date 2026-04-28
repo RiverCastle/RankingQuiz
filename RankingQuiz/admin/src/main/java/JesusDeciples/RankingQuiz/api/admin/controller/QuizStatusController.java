@@ -25,11 +25,17 @@ public class QuizStatusController {
         return ResponseEntity.ok(quizStatusService.getAllStatus());
     }
 
+    @GetMapping("/public")
+    @Operation(summary = "퀴즈 상태 공개 조회", description = "인증 없이 모든 카테고리의 퀴즈 활성화 상태를 반환합니다.")
+    public ResponseEntity<Map<QuizCategory, Boolean>> getPublicStatus() {
+        return ResponseEntity.ok(quizStatusService.getAllStatus());
+    }
+
     @PutMapping("/{category}")
     @Operation(summary = "퀴즈 상태 변경", description = "특정 카테고리 퀴즈의 활성화 상태를 변경합니다.")
     public ResponseEntity<Void> setStatus(
-            @PathVariable QuizCategory category,
-            @RequestParam boolean enabled) {
+            @PathVariable("category") QuizCategory category,
+            @RequestParam("enabled") boolean enabled) {
         quizStatusService.setStatus(category, enabled);
         return ResponseEntity.ok().build();
     }

@@ -1,5 +1,6 @@
 package JesusDeciples.RankingQuiz.api.config;
 
+import JesusDeciples.RankingQuiz.api.entity.QuizSubjectStatus;
 import JesusDeciples.RankingQuiz.api.entity.quiz.Quiz;
 import JesusDeciples.RankingQuiz.api.entity.quizContent.MultipleChoiceQuizContent;
 import JesusDeciples.RankingQuiz.api.entity.quizContent.QuizContentLinkReferenceTag;
@@ -8,6 +9,7 @@ import JesusDeciples.RankingQuiz.api.entity.quizContent.ShortAnswerQuizContent;
 import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.repository.MultipleChoiceQuizContentRepository;
 import JesusDeciples.RankingQuiz.api.repository.QuizRepository;
+import JesusDeciples.RankingQuiz.api.repository.QuizSubjectStatusRepository;
 import JesusDeciples.RankingQuiz.api.repository.ReferenceTagRepository;
 import JesusDeciples.RankingQuiz.api.repository.ShortAnswerQuizContentRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +27,17 @@ public class DataInitializer implements ApplicationRunner {
     private final ShortAnswerQuizContentRepository shortAnswerQuizContentRepository;
     private final ReferenceTagRepository referenceTagRepository;
     private final QuizRepository quizRepository;
+    private final QuizSubjectStatusRepository quizSubjectStatusRepository;
 
     @Override
     public void run(ApplicationArguments args) {
+        if (quizSubjectStatusRepository.count() == 0) {
+            quizSubjectStatusRepository.saveAll(List.of(
+                    new QuizSubjectStatus(QuizCategory.ENG_VOCA, true),
+                    new QuizSubjectStatus(QuizCategory.BIBLE, true)
+            ));
+        }
+
         if (referenceTagRepository.count() > 0) return;
         Tags tags = saveTags();
         initEngVocaQuizContents(tags);
