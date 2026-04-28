@@ -5,7 +5,6 @@ function quizResultUpdate(quizResultObject) {
     const myAnswerEl    = document.getElementById('myAnswer');
     const winnerNameEl  = document.getElementById('quizWinnerName');
 
-    // 정답 여부
     if (quizResultObject.correct) {
         isCorrectEl.textContent = '✅ 정답입니다!';
         isCorrectEl.className   = 'result-correct';
@@ -18,7 +17,6 @@ function quizResultUpdate(quizResultObject) {
     quizAnswerEl.textContent = '정답: ' + quizResultObject.answer;
     myAnswerEl.textContent   = '내 답변: ' + (quizResultObject.myAnswer ?? '미제출 😭');
 
-    // 우승자 이름 (QuizResultDto.userName)
     if (winnerNameEl) {
         winnerNameEl.textContent = quizResultObject.userName
             ? '🏆 ' + quizResultObject.userName
@@ -27,9 +25,9 @@ function quizResultUpdate(quizResultObject) {
 }
 
 function quizResultOn() {
-    document.getElementById('quizResultContainer').classList.remove('hidden');
+    document.getElementById('resultSection').classList.remove('quiz-section--hidden');
 }
 
 function quizResultOff() {
-    document.getElementById('quizResultContainer').classList.add('hidden');
+    document.getElementById('resultSection').classList.add('quiz-section--hidden');
 }

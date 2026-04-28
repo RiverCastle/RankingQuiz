@@ -28,57 +28,58 @@
       </div>
     </header>
 
-    <!-- Guide Message (대기/안내 상태) -->
-    <div id="guideMessageContainer" class="card-glass rounded-3xl p-8 mt-6 text-center">
-      <p class="text-4xl mb-4">⏳</p>
-      <p id="guideMessageText" class="text-white/80 text-base font-medium leading-relaxed">연결 중...</p>
-    </div>
+    <!-- 단일 퀴즈 콘텐츠 컨테이너 (레이아웃 안정화) -->
+    <div id="quizContentArea" class="quiz-content-area mt-6">
 
-    <!-- Quiz Box (문제 출제 상태) -->
-    <div id="quizBox" class="hidden mt-6 flex flex-col gap-4">
+      <!-- 1. Guide section (대기/안내 상태) — 기본 노출 -->
+      <div id="guideSection" class="quiz-section card-glass rounded-3xl p-8 text-center">
+        <p class="text-4xl mb-4">⏳</p>
+        <p id="guideMessageText" class="text-white/80 text-base font-medium leading-relaxed">연결 중...</p>
+      </div>
 
-      <!-- 문제 헤더: 번호 + 타이머 -->
-      <div class="flex items-center justify-between px-1">
-        <span class="text-white/40 text-sm font-semibold tracking-wider">
-          Q.<span id="quizId" class="text-white/70 ml-1">-</span>
-        </span>
-        <div class="flex items-center gap-2">
-          <span class="text-white/30 text-xs">남은 시간</span>
-          <span id="countdown" class="text-neon-blue neon-text text-2xl font-black tabular-nums">--</span>
-          <span class="text-white/30 text-xs">초</span>
+      <!-- 2. Quiz section (문제 출제 상태) -->
+      <div id="quizSection" class="quiz-section quiz-section--hidden flex flex-col gap-4">
+
+        <!-- 문제 헤더: 번호 + 타이머 -->
+        <div class="flex items-center justify-between px-1">
+          <span class="text-white/40 text-sm font-semibold tracking-wider">
+            Q.<span id="quizId" class="text-white/70 ml-1">-</span>
+          </span>
+          <div class="flex items-center gap-2">
+            <span class="text-white/30 text-xs">남은 시간</span>
+            <span id="countdown" class="text-neon-blue neon-text text-2xl font-black tabular-nums">--</span>
+            <span class="text-white/30 text-xs">초</span>
+          </div>
+        </div>
+
+        <!-- 퀴즈 폼 -->
+        <div id="quizForm" class="card-glass rounded-3xl p-6">
+          <p id="quizStatement" class="text-white font-bold text-lg leading-snug mb-6 min-h-[3rem]"></p>
+          <div id="optionsContainer" class="grid grid-cols-1 gap-3"></div>
         </div>
       </div>
 
-      <!-- 퀴즈 폼 -->
-      <div id="quizForm" class="card-glass rounded-3xl p-6">
-        <p id="quizStatement" class="text-white font-bold text-lg leading-snug mb-6 min-h-[3rem]"></p>
-        <div
-          id="optionsContainer"
-          class="grid grid-cols-1 gap-3"
-          style="display: none;"
-        ></div>
+      <!-- 3. Result section (채점 결과 상태) -->
+      <div id="resultSection" class="quiz-section quiz-section--hidden card-glass rounded-3xl p-6 flex flex-col gap-4">
+
+        <!-- 정답 여부 -->
+        <p id="isCorrect" class="text-center text-xl font-black"></p>
+
+        <div class="h-px bg-white/10"></div>
+
+        <!-- 문제 / 정답 / 내 답변 -->
+        <div class="flex flex-col gap-2">
+          <p id="statement" class="text-white/60 text-sm leading-relaxed"></p>
+          <p id="quizAnswer" class="text-neon-blue font-bold text-base"></p>
+          <p id="myAnswer" class="text-white/50 text-sm"></p>
+        </div>
+
+        <div class="h-px bg-white/10"></div>
+
+        <!-- 우승자 -->
+        <p id="quizWinnerName" class="text-center text-neon-purple neon-text-purple text-sm font-semibold"></p>
+
       </div>
-    </div>
-
-    <!-- Quiz Result (채점 결과 상태) -->
-    <div id="quizResultContainer" class="hidden card-glass rounded-3xl p-6 mt-6 flex flex-col gap-4">
-
-      <!-- 정답 여부 -->
-      <p id="isCorrect" class="text-center text-xl font-black"></p>
-
-      <div class="h-px bg-white/10"></div>
-
-      <!-- 문제 / 정답 / 내 답변 -->
-      <div class="flex flex-col gap-2">
-        <p id="statement" class="text-white/60 text-sm leading-relaxed"></p>
-        <p id="quizAnswer" class="text-neon-blue font-bold text-base"></p>
-        <p id="myAnswer" class="text-white/50 text-sm"></p>
-      </div>
-
-      <div class="h-px bg-white/10"></div>
-
-      <!-- 우승자 -->
-      <p id="quizWinnerName" class="text-center text-neon-purple neon-text-purple text-sm font-semibold"></p>
 
     </div>
 

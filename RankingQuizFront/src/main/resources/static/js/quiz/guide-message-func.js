@@ -1,18 +1,12 @@
 function guideMessageOn(guideMessage) {
     if (!guideMessage.display) return;
-    const container = document.getElementById('guideMessageContainer');
-    const textEl    = document.getElementById('guideMessageText');
-    if (container && textEl) {
-        textEl.textContent = guideMessage.message;
-        container.classList.remove('hidden');
-    }
+    const textEl = document.getElementById('guideMessageText');
+    if (textEl) textEl.textContent = guideMessage.message;
+    document.getElementById('guideSection')?.classList.remove('quiz-section--hidden');
 }
 
 function guideMessageOff() {
-    const container = document.getElementById('guideMessageContainer');
-    const textEl    = document.getElementById('guideMessageText');
-    if (container && textEl) {
-        textEl.textContent = '';
-        container.classList.add('hidden');
-    }
+    const textEl = document.getElementById('guideMessageText');
+    if (textEl) textEl.textContent = '';
+    document.getElementById('guideSection')?.classList.add('quiz-section--hidden');
 }

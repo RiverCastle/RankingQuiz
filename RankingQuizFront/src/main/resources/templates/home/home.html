@@ -53,7 +53,7 @@
       </div>
 
       <!-- Quiz buttons -->
-      <div class="grid grid-cols-2 gap-3 mb-6">
+      <div id="quizButtonsSection" class="grid grid-cols-2 gap-3 mb-6">
         <button
           id="voca-quizButton"
           class="btn-glow-blue bg-gradient-to-br from-neon-blue to-neon-blue-dark text-surface-base font-bold rounded-2xl py-4 text-sm tracking-wide"
@@ -66,6 +66,13 @@
         >
           ✝️ 성경 퀴즈
         </button>
+      </div>
+
+      <!-- 준비 중 안내 (모든 과목 Off 시 표시) -->
+      <div id="comingSoonSection" class="hidden text-center py-6 mb-6">
+        <div class="text-4xl mb-3">🔧</div>
+        <p class="text-white/60 text-sm font-semibold">현재 모든 퀴즈가 준비 중입니다.</p>
+        <p class="text-white/30 text-xs mt-1">잠시 후 다시 확인해주세요.</p>
       </div>
 
       <!-- Divider -->
@@ -94,10 +101,12 @@
   </div>
 
   <!-- Page-specific scripts -->
+  <script th:src="@{/js/config.js}"></script>
   <script th:src="@{/js/kakao-login.js}"></script>
   <script th:src="@{/js/voca-quiz-button.js}"></script>
   <script th:src="@{/js/bible-quiz-button.js}"></script>
   <script th:src="@{/js/home.js}"></script>
+  <script th:src="@{/js/quiz-status.js}"></script>
 
 </body>
 </html>

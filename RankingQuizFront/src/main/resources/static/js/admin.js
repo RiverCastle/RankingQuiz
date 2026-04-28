@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initRadioCards();
   initQuizTypeToggle();
   loadQuizStatus();
+  loadSessionCounts();
+  setInterval(loadSessionCounts, 15000);
 });
 
 // =============================================
@@ -86,12 +88,29 @@ async function loadQuizStatus() {
 
 function applyStatus(category, enabled) {
   const toggle = document.getElementById(`toggle-${category}`);
-  const badge = document.getElementById(`status-${category}`);
   if (toggle) toggle.checked = enabled;
-  if (badge) {
-    badge.textContent = enabled ? '🟢 활성화됨' : '🔴 비활성화됨';
-    badge.className = `status-badge ${enabled ? 'on' : 'off'} text-xs font-semibold px-3 py-1.5 rounded-full inline-block`;
+}
+
+// =============================================
+// 접속자 수 조회 (15초 polling)
+// =============================================
+async function loadSessionCounts() {
+  try {
+    const res = await fetch(`${protocol}${BACKEND_BASE_URL}/quiz-sessions/count`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    if (!res.ok) throw new Error('조회 실패');
+    const data = await res.json();
+    updateSessionCount('ENG_VOCA', data['ENG_VOCA']);
+    updateSessionCount('BIBLE', data['BIBLE']);
+  } catch (e) {
+    console.error('접속자 수 조회 실패:', e.message);
   }
+}
+
+function updateSessionCount(category, count) {
+  const el = document.getElementById(`session-count-${category}`);
+  if (el) el.textContent = count ?? '-';
 }
 
 // =============================================
