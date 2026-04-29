@@ -11,12 +11,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('adminContent').classList.remove('hidden');
   initTabs();
-  initRadioCards();
   initQuizTypeToggle();
-  loadQuizStatus();
-  loadSessionCounts();
+  loadCategories();
   setInterval(loadSessionCounts, 15000);
 });
+
+// =============================================
+// 카테고리 목록 로드 (상태카드 + 라디오버튼 동적 렌더링)
+// =============================================
+async function loadCategories() {
+  let categories = [];
+  try {
+    const res = await fetch(`${protocol}${BACKEND_BASE_URL}/categories`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    if (res.ok) categories = await res.json();
+  } catch (e) {
+    showToast('카테고리 로드 실패: ' + e.message);
+  }
+
+  renderStatusCards(categories);
+  renderCategoryRadios(categories);
+  loadSessionCounts();
+}
+
+function renderStatusCards(categories) {
+  const list = document.getElementById('categoryStatusList');
+  list.innerHTML = '';
+  const sliderColors = ['toggle-blue', 'toggle-purple', 'toggle-blue'];
+  const countColors = ['text-neon-blue', 'text-neon-purple', 'text-neon-blue'];
+
+  categories.forEach((cat, i) => {
+    const colorClass = sliderColors[i % sliderColors.length];
+    const countClass = countColors[i % countColors.length];
+    const card = document.createElement('div');
+    card.className = 'card-glass rounded-3xl p-5 mb-4';
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="font-bold text-base">${cat.displayName}</p>
+          <p class="text-white/40 text-xs mt-0.5">${cat.code}</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-${cat.code}"
+            onchange="onToggleQuiz('${cat.code}', '${cat.displayName}', this.checked)"
+            ${cat.enabled ? 'checked' : ''} />
+          <span class="toggle-slider ${colorClass}"></span>
+        </label>
+      </div>
+      <div class="mt-4 flex items-center gap-2">
+        <span class="text-white/40 text-xs">현재 접속자</span>
+        <span id="session-count-${cat.code}" class="${countClass} font-bold text-sm">-</span>
+        <span class="text-white/40 text-xs">명</span>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function renderCategoryRadios(categories) {
+  const group = document.getElementById('categoryRadioGroup');
+  group.innerHTML = '';
+  categories.forEach((cat, i) => {
+    const label = document.createElement('label');
+    label.className = 'radio-card' + (i === 0 ? ' selected' : '');
+    label.id = `radio-${cat.code}`;
+    label.innerHTML = `
+      <input type="radio" name="categoryCode" value="${cat.code}" class="hidden" ${i === 0 ? 'checked' : ''} />
+      <span class="text-sm font-bold">${cat.displayName}</span>`;
+    group.appendChild(label);
+  });
+  initRadioCards();
+}
 
 // =============================================
 // 탭 전환
@@ -51,7 +116,6 @@ function initRadioCards() {
     });
   });
 
-  // 초기 선택 상태 반영
   document.querySelectorAll('input[type="radio"]:checked').forEach(r => {
     r.closest('.radio-card').classList.add('selected');
   });
@@ -70,28 +134,6 @@ function initQuizTypeToggle() {
 }
 
 // =============================================
-// 퀴즈 상태 조회
-// =============================================
-async function loadQuizStatus() {
-  try {
-    const res = await fetch(`${protocol}${BACKEND_BASE_URL}/quiz-status`, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-    if (!res.ok) throw new Error('권한이 없습니다.');
-    const data = await res.json();
-    applyStatus('ENG_VOCA', data['ENG_VOCA']);
-    applyStatus('BIBLE', data['BIBLE']);
-  } catch (e) {
-    showToast('상태 조회 실패: ' + e.message);
-  }
-}
-
-function applyStatus(category, enabled) {
-  const toggle = document.getElementById(`toggle-${category}`);
-  if (toggle) toggle.checked = enabled;
-}
-
-// =============================================
 // 접속자 수 조회 (15초 polling)
 // =============================================
 async function loadSessionCounts() {
@@ -101,39 +143,73 @@ async function loadSessionCounts() {
     });
     if (!res.ok) throw new Error('조회 실패');
     const data = await res.json();
-    updateSessionCount('ENG_VOCA', data['ENG_VOCA']);
-    updateSessionCount('BIBLE', data['BIBLE']);
+    Object.entries(data).forEach(([code, count]) => {
+      updateSessionCount(code, count);
+    });
   } catch (e) {
     console.error('접속자 수 조회 실패:', e.message);
   }
 }
 
-function updateSessionCount(category, count) {
-  const el = document.getElementById(`session-count-${category}`);
+function updateSessionCount(code, count) {
+  const el = document.getElementById(`session-count-${code}`);
   if (el) el.textContent = count ?? '-';
 }
 
 // =============================================
 // 퀴즈 상태 토글
 // =============================================
-async function onToggleQuiz(category, enabled) {
+async function onToggleQuiz(code, displayName, enabled) {
   try {
     const res = await fetch(
-      `${protocol}${BACKEND_BASE_URL}/quiz-status/${category}?enabled=${enabled}`,
+      `${protocol}${BACKEND_BASE_URL}/quiz-status/${code}?enabled=${enabled}`,
       {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}` }
       }
     );
     if (!res.ok) throw new Error('변경 실패');
-    applyStatus(category, enabled);
-    const label = category === 'ENG_VOCA' ? '단어 퀴즈' : '성경 퀴즈';
-    showToast(`${label}가 ${enabled ? '활성화' : '비활성화'}되었습니다.`);
+    showToast(`${displayName}가 ${enabled ? '활성화' : '비활성화'}되었습니다.`);
   } catch (e) {
-    // 실패 시 토글 원복
-    const toggle = document.getElementById(`toggle-${category}`);
+    const toggle = document.getElementById(`toggle-${code}`);
     if (toggle) toggle.checked = !enabled;
     showToast('변경 실패: ' + e.message);
+  }
+}
+
+// =============================================
+// 신규 카테고리 등록
+// =============================================
+async function submitNewCategory() {
+  const code = document.getElementById('newCategoryCode').value.trim().toUpperCase();
+  const displayName = document.getElementById('newCategoryName').value.trim();
+  const allowMultipleWinners = document.getElementById('newCategoryMultiWinner').checked;
+
+  if (!code || !displayName) {
+    showToast('코드와 표시명을 모두 입력해주세요.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${protocol}${BACKEND_BASE_URL}/categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ code, displayName, allowMultipleWinners })
+    });
+    if (!res.ok) {
+      const msg = res.status === 409 ? '이미 존재하는 카테고리입니다.' : '등록에 실패했습니다.';
+      throw new Error(msg);
+    }
+    document.getElementById('newCategoryCode').value = '';
+    document.getElementById('newCategoryName').value = '';
+    document.getElementById('newCategoryMultiWinner').checked = false;
+    showToast(`'${displayName}' 카테고리가 등록되었습니다.`);
+    loadCategories();
+  } catch (e) {
+    showToast('카테고리 등록 실패: ' + e.message);
   }
 }
 
@@ -180,17 +256,17 @@ async function submitQuiz() {
   const statement = document.getElementById('statement').value.trim();
   const answer = document.getElementById('answer').value.trim();
   const timeLimit = parseInt(document.getElementById('timeLimit').value) || 10;
-  const category = document.querySelector('input[name="category"]:checked')?.value;
+  const categoryCode = document.querySelector('input[name="categoryCode"]:checked')?.value;
   const quizType = document.querySelector('input[name="quizType"]:checked')?.value;
   const tagsRaw = document.getElementById('tags').value.trim();
   const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-  if (!statement || !answer || !category || !quizType) {
+  if (!statement || !answer || !categoryCode || !quizType) {
     showRegisterResult('문제 내용과 정답을 모두 입력해주세요.', false);
     return;
   }
 
-  const payload = { statement, answer, timeLimit, category, quizType, tags };
+  const payload = { statement, answer, timeLimit, categoryCode, quizType, tags };
 
   if (quizType === 'MULTIPLE_CHOICE') {
     const options = [...document.querySelectorAll('.option-input')]

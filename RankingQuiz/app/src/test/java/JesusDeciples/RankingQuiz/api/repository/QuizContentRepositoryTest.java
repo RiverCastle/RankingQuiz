@@ -1,7 +1,6 @@
 package JesusDeciples.RankingQuiz.api.repository;
 
 import JesusDeciples.RankingQuiz.api.entity.quizContent.QuizContent;
-import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +22,19 @@ class QuizContentRepositoryTest {
         List<QuizContent> testEntities = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             QuizContent entity = new QuizContent();
-            entity.setCategory(QuizCategory.ENG_VOCA);
+            entity.setCategoryCode("ENG_VOCA");
             testEntities.add(entity);
         }
 
         for (int i = 0; i < 3; i++) {
             QuizContent entity = new QuizContent();
-            entity.setCategory(QuizCategory.BIBLE);
+            entity.setCategoryCode("BIBLE");
             testEntities.add(entity);
         }
 
         repository.saveAll(testEntities);
 
-        assertEquals(QuizCategory.BIBLE, repository.findRandomByCategory("BIBLE").get().getCategory());
-        assertEquals(QuizCategory.ENG_VOCA, repository.findRandomByCategory("ENG_VOCA").get().getCategory());
+        assertEquals("BIBLE", repository.findRandomByCategory("BIBLE").get().getCategoryCode());
+        assertEquals("ENG_VOCA", repository.findRandomByCategory("ENG_VOCA").get().getCategoryCode());
     }
 }

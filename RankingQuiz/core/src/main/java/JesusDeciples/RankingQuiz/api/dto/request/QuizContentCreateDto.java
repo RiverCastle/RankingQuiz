@@ -1,7 +1,6 @@
 package JesusDeciples.RankingQuiz.api.dto.request;
 
 import JesusDeciples.RankingQuiz.api.dto.QuizType;
-import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -20,7 +19,7 @@ public class QuizContentCreateDto {
     private QuizType quizType;
     private List<String> multipleOptions;
     @NotBlank
-    private QuizCategory category;
+    private String categoryCode;
     private List<String> tags;
     public Integer getTimeLimit() {
         return (timeLimit != null) ? timeLimit : 10;

@@ -2,9 +2,13 @@ package rankingquizfront.web.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -20,26 +24,31 @@ public class WebPageController {
         return "home/home";
     }
 
-    @GetMapping("/quiz/voca")
-    public String quizVoca() {
-        if (!isQuizEnabled("ENG_VOCA")) return "redirect:/?quizDisabled=true";
-        return "quiz/voca/voca";
-    }
-
-    @GetMapping("/quiz/bible")
-    public String quizBible() {
-        if (!isQuizEnabled("BIBLE")) return "redirect:/?quizDisabled=true";
-        return "quiz/bible/bible";
+    @GetMapping("/quiz/{categoryCode}")
+    public String quiz(@PathVariable String categoryCode, Model model) {
+        String upperCode = categoryCode.toUpperCase();
+        CategoryInfo info = findEnabledCategory(upperCode);
+        if (info == null) return "redirect:/?quizDisabled=true";
+        model.addAttribute("categoryCode", upperCode);
+        model.addAttribute("displayName", info.displayName());
+        return "quiz/quiz";
     }
 
     @SuppressWarnings("unchecked")
-    private boolean isQuizEnabled(String category) {
+    private CategoryInfo findEnabledCategory(String code) {
         try {
-            Map<String, Boolean> status = restTemplate.getForObject(
-                    backendApiUrl + "/quiz-status/public", Map.class);
-            return status != null && Boolean.TRUE.equals(status.get(category));
+            Map<?, ?>[] categories = restTemplate.getForObject(
+                    backendApiUrl + "/categories", Map[].class);
+            if (categories == null) return null;
+            return Arrays.stream(categories)
+                    .filter(c -> code.equals(c.get("code")) && Boolean.TRUE.equals(c.get("enabled")))
+                    .findFirst()
+                    .map(c -> new CategoryInfo((String) c.get("displayName")))
+                    .orElse(null);
         } catch (Exception e) {
-            return true;
+            return new CategoryInfo(code);
         }
     }
+
+    private record CategoryInfo(String displayName) {}
 }

@@ -5,7 +5,6 @@ import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
 import JesusDeciples.RankingQuiz.api.entity.quiz.Quiz;
 import JesusDeciples.RankingQuiz.api.facade.QuizQuizContentFacade;
 import JesusDeciples.RankingQuiz.api.facade.QuizScoreFacade;
-import JesusDeciples.RankingQuiz.api.service.quizDataCenter.voca.VocaQuizDataCenter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class QuizDataCenterTest {
-    private VocaQuizDataCenter quizDataCenter;
+    // allowMultipleWinners=true → 기존 VocaQuizDataCenter 채점 방식
+    private GenericQuizDataCenter quizDataCenter;
     @Mock
     QuizScoreFacade quizScoreFacade;
     @Mock
@@ -31,7 +31,7 @@ class QuizDataCenterTest {
 
     @BeforeEach
     void setUp() {
-        quizDataCenter = new VocaQuizDataCenter(quizScoreFacade, quizQuizContentFacade);
+        quizDataCenter = new GenericQuizDataCenter("ENG_VOCA", true, quizScoreFacade, quizQuizContentFacade);
     }
 
     @Test
