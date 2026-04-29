@@ -1,9 +1,12 @@
 package JesusDeciples.RankingQuiz.api.controller;
 
 import JesusDeciples.RankingQuiz.api.dto.request.QuizContentCreateDto;
+import JesusDeciples.RankingQuiz.api.dto.response.BulkImportResultDto;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizContentReviewDto;
 import JesusDeciples.RankingQuiz.api.facade.QuizContentCreateFacade;
 import JesusDeciples.RankingQuiz.api.facade.QuizContentReadFacade;
+import JesusDeciples.RankingQuiz.api.service.BulkImportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,12 +24,26 @@ import java.util.List;
 public class QuizContentController {
     private final QuizContentCreateFacade quizContentCreateFacade;
     private final QuizContentReadFacade readFacade;
+    private final BulkImportService bulkImportService;
     @PostMapping
     @Operation(summary = "QuizContent 등록",
             description = "주어진 QuizContentCreateDto 배열을 사용하여 퀴즈 콘텐츠를 등록합니다.")
     public void addQuizContent(@RequestBody QuizContentCreateDto[] quizContentCreateDtos) {
         for (QuizContentCreateDto quizContentCreateDto : quizContentCreateDtos)
             quizContentCreateFacade.createQuizContent(quizContentCreateDto);
+    }
+
+    @PostMapping("/bulk-import")
+    @Operation(summary = "QuizContent 대량 등록",
+            description = "탭 구분 텍스트(문제\\t정답\\t선택지JSON)와 카테고리 쿼리 파라미터를 받아 퀴즈 문항을 일괄 등록합니다. 오류 발생 시 전체 취소됩니다.")
+    public ResponseEntity<BulkImportResultDto> bulkImportQuizContent(
+            @RequestParam QuizCategory category,
+            @RequestBody String rawText) {
+        BulkImportResultDto result = bulkImportService.importFromTsv(rawText, category);
+        if (!result.isSuccess()) {
+            return ResponseEntity.badRequest().body(result);
+        }
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/review-content/{quizContentId}")
