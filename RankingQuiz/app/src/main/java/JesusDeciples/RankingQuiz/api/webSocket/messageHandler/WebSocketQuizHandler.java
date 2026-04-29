@@ -171,7 +171,9 @@ public class WebSocketQuizHandler implements WebSocketHandler {
             if (session == null || !session.isOpen()) continue;
 
             if (sessionIdsOfParticipants.contains(sessionId)) {
-                session.sendMessage(textMessageFactory.produceTextMessage(results.get(sessionId)));
+                QuizResultDto resultDto = results.get(sessionId);
+                resultDto.setWinnerName(winnerName);
+                session.sendMessage(textMessageFactory.produceTextMessage(resultDto));
                 session.sendMessage(winnerAnnouncementMessage);
             } else {
                 GuideMessage notParticipated = new GuideMessage(
