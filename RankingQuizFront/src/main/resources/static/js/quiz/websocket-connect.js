@@ -1,7 +1,6 @@
-// bible / voca 공통 WebSocket 연결 함수
-// wsPath: 'bible' | 'voca'
-function initQuizWebSocket(wsPath) {
-    const wsUrl  = websocket_protocol + BACKEND_BASE_URL + '/ws/quiz/' + wsPath;
+// QUIZ_CATEGORY_CODE는 quiz.html에서 Thymeleaf가 인라인으로 주입
+function initQuizWebSocket() {
+    const wsUrl  = websocket_protocol + BACKEND_BASE_URL + '/ws/quiz/' + QUIZ_CATEGORY_CODE;
     const socket = new WebSocket(wsUrl);
 
     document.getElementById('stop-button').addEventListener('click', function () {
@@ -55,3 +54,5 @@ function initQuizWebSocket(wsPath) {
         }
     };
 }
+
+initQuizWebSocket();

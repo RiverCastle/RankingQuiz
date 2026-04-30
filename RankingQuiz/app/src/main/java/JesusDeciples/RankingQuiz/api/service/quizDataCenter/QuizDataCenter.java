@@ -21,4 +21,5 @@ public abstract class QuizDataCenter {
     public abstract QuizDto getPresentQuizDto();
     public abstract String getWinnerName();
     public abstract void loadAnswerFromUser(AnswerDto answerDto);
+    public abstract String getCategoryCode();
 }

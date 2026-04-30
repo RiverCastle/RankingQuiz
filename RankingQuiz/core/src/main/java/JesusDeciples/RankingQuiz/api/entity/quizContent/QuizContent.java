@@ -1,6 +1,5 @@
 package JesusDeciples.RankingQuiz.api.entity.quizContent;
 
-import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,8 +15,8 @@ public class QuizContent {
     private String statement;
     private String answer;
     private Integer timeLimit;
-    @Enumerated(EnumType.STRING)
-    private QuizCategory category;
+    @Column(name = "category_code", length = 50)
+    private String categoryCode;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "quizContent")
     private List<QuizContentLinkReferenceTag> links = new ArrayList<>();
     public void linkWithTags(List<QuizContentLinkReferenceTag> list) {
