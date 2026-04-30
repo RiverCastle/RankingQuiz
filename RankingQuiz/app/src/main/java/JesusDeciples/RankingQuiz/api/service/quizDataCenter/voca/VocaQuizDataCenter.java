@@ -121,4 +121,9 @@ public class VocaQuizDataCenter extends QuizDataCenter {
         clearResults();
         clearWinnerName();
     }
+
+    @Override
+    public QuizCategory getCategory() {
+        return QuizCategory.ENG_VOCA;
+    }
 }
