@@ -3,6 +3,7 @@ package JesusDeciples.RankingQuiz.api.service.quizDataCenter;
 import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterState;
 
 import java.time.LocalDateTime;
@@ -21,4 +22,5 @@ public abstract class QuizDataCenter {
     public abstract QuizDto getPresentQuizDto();
     public abstract String getWinnerName();
     public abstract void loadAnswerFromUser(AnswerDto answerDto);
+    public abstract QuizCategory getCategory();
 }

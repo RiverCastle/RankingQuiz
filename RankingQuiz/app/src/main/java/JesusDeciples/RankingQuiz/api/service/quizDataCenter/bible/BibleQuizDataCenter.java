@@ -17,6 +17,8 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,12 +78,22 @@ public class BibleQuizDataCenter extends QuizDataCenter {
     public void score() {
         clearWinnerName();
         clearResults();
+        List<String> winners = new ArrayList<>();
+        LocalDateTime fastest = LocalDateTime.MAX;
         for (AnswerDto answerDto : answerQueue) {
             QuizResultDto resultDto = quizScoreFacade.score(presentQuiz.getId(), answerDto);
-            if (winnerName == null && resultDto.isCorrect()) {
-                winnerName = resultDto.getUserName();
-            }
             results.put(answerDto.getSessionId(), resultDto);
+            LocalDateTime writtenAt = resultDto.getWrittenAt();
+            if (resultDto.isCorrect()) {
+                if (writtenAt.isBefore(fastest)) {
+                    winners.clear();
+                    fastest = writtenAt;
+                    winners.add(resultDto.getUserName());
+                } else if (fastest.equals(writtenAt)) {
+                    winners.add(resultDto.getUserName());
+                }
+            }
+            winnerName = winners.isEmpty() ? null : String.join(", ", winners);
         }
         clearAnswers();
     }
@@ -109,5 +121,10 @@ public class BibleQuizDataCenter extends QuizDataCenter {
         clearAnswers();
         clearResults();
         clearWinnerName();
+    }
+
+    @Override
+    public QuizCategory getCategory() {
+        return QuizCategory.BIBLE;
     }
 }

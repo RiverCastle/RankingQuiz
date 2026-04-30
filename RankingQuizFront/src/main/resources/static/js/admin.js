@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadQuizStatus();
   loadSessionCounts();
   setInterval(loadSessionCounts, 15000);
+  document.getElementById('tab-bulk').addEventListener('click', () => switchTab('bulk'));
 });
 
 // =============================================
@@ -29,7 +30,7 @@ function initTabs() {
 }
 
 function switchTab(name) {
-  ['home', 'register'].forEach(t => {
+  ['home', 'register', 'bulk'].forEach(t => {
     document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
     document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== name);
   });
@@ -238,6 +239,73 @@ function showRegisterResult(message, success) {
   el.className = `text-center text-sm py-3 rounded-2xl ${success ? 'success' : 'error'}`;
   el.classList.remove('hidden');
   setTimeout(() => el.classList.add('hidden'), 3000);
+}
+
+// =============================================
+// 대량 등록
+// =============================================
+async function submitBulkImport() {
+  const rawText = document.getElementById('bulkImportText').value;
+  if (!rawText.trim()) {
+    showBulkResult([{ rowNumber: 0, message: '데이터를 입력해주세요.' }], false);
+    return;
+  }
+
+  const btn = document.getElementById('bulkSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '등록 중...';
+
+  try {
+    const category = document.getElementById('bulkCategory').value;
+  const res = await fetch(`${protocol}${BACKEND_BASE_URL}/quiz-content/bulk-import?category=${category}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=UTF-8',
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: rawText
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showBulkResult(data.errors, false);
+    } else {
+      showBulkResult(null, true, data.savedCount);
+      document.getElementById('bulkImportText').value = '';
+    }
+  } catch (e) {
+    showBulkResult([{ rowNumber: 0, message: '서버 오류: ' + e.message }], false);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '대량 등록하기';
+  }
+}
+
+function showBulkResult(errors, success, savedCount) {
+  const el = document.getElementById('bulkResult');
+  el.innerHTML = '';
+  el.classList.remove('hidden');
+
+  if (success) {
+    const msg = document.createElement('div');
+    msg.className = 'text-center text-sm py-3 rounded-2xl success';
+    msg.textContent = `✅ ${savedCount}개의 문제가 성공적으로 등록되었습니다!`;
+    el.appendChild(msg);
+    return;
+  }
+
+  const header = document.createElement('div');
+  header.className = 'text-center text-sm py-3 rounded-2xl error';
+  header.textContent = `❌ 등록 실패 — ${errors.length}개의 오류가 발생했습니다. 수정 후 다시 시도하세요.`;
+  el.appendChild(header);
+
+  errors.forEach(err => {
+    const item = document.createElement('div');
+    item.className = 'bg-white/5 border border-red-500/30 rounded-xl px-4 py-2 text-xs text-red-300';
+    item.textContent = err.rowNumber > 0 ? `${err.rowNumber}번째 줄: ${err.message}` : err.message;
+    el.appendChild(item);
+  });
 }
 
 function resetForm() {
