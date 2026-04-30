@@ -2,6 +2,9 @@ package JesusDeciples.RankingQuiz.api.repository;
 
 import JesusDeciples.RankingQuiz.api.entity.quizContent.QuizContent;
 import JesusDeciples.RankingQuiz.api.entity.quizContent.ReferenceTag;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +24,10 @@ public interface QuizContentRepository extends JpaRepository<QuizContent, Long> 
 
     @Query("SELECT DISTINCT qc FROM QuizContent qc JOIN FETCH qc.links link WHERE link.referenceTag IN :tags")
     List<QuizContent> findDistinctAllByTagIn(@Param("tags") Set<ReferenceTag> tagSet);
+
+    Page<QuizContent> findByCategory(QuizCategory category, Pageable pageable);
+
+    Page<QuizContent> findByAnswerContainingIgnoreCase(String answer, Pageable pageable);
+
+    Page<QuizContent> findByCategoryAndAnswerContainingIgnoreCase(QuizCategory category, String answer, Pageable pageable);
 }
