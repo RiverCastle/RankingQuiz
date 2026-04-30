@@ -18,9 +18,11 @@ function quizResultUpdate(quizResultObject) {
     myAnswerEl.textContent   = '내 답변: ' + (quizResultObject.myAnswer ?? '미제출 😭');
 
     if (winnerNameEl) {
-        winnerNameEl.textContent = quizResultObject.userName
-            ? '🏆 ' + quizResultObject.userName
-            : '';
+        if (quizResultObject.winnerName) {
+            winnerNameEl.textContent = '🏆 ' + quizResultObject.winnerName;
+        } else {
+            winnerNameEl.textContent = '정답자가 없습니다';
+        }
     }
 }
 

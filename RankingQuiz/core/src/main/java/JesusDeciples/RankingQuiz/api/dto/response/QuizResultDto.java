@@ -16,6 +16,7 @@ public class QuizResultDto {
     private String statement;
     private LocalDateTime writtenAt;
     private String userName;
+    private String winnerName;
 
     public QuizResultDto(boolean isCorrect) {
         this.isCorrect = isCorrect;
