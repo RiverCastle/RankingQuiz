@@ -1,75 +1,69 @@
 package JesusDeciples.RankingQuiz.api.webSocket;
 
+import JesusDeciples.RankingQuiz.api.admin.service.QuizStatusService;
+import JesusDeciples.RankingQuiz.api.dto.GuideMessageBundle;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
+import JesusDeciples.RankingQuiz.api.webSocket.messageHandler.AccessTokenMessageHandler;
+import JesusDeciples.RankingQuiz.api.webSocket.messageHandler.WebSocketQuizHandler;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.*;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+
+import java.util.Map;
 
 @Configuration
 @EnableWebSocket
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final QuizHandlerRegistry handlerRegistry;
+    private final CustomTextMessageFactory textMessageFactory;
+    private final QuizDataCenterMediator quizDataCenterMediator;
+    private final GuideMessageBundle guideMessageBundle;
+    private final ObjectMapper objectMapper;
+    private final AccessTokenMessageHandler accessTokenMessageHandler;
+    private final QuizStatusService quizStatusService;
 
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(routingHandler(), "/api/ws/quiz/**")
-                .setAllowedOrigins("http://localhost:8081", "https://rankingquiz.rivercastleworks.site");
+    @Bean
+    public WebSocketQuizHandler vocaQuizHandler() {
+        return new WebSocketQuizHandler(
+                QuizCategory.ENG_VOCA,
+                textMessageFactory,
+                quizDataCenterMediator,
+                guideMessageBundle,
+                objectMapper,
+                accessTokenMessageHandler,
+                quizStatusService);
     }
 
     @Bean
-    public WebSocketHandler routingHandler() {
-        return new WebSocketHandler() {
+    public WebSocketQuizHandler bibleQuizHandler() {
+        return new WebSocketQuizHandler(
+                QuizCategory.BIBLE,
+                textMessageFactory,
+                quizDataCenterMediator,
+                guideMessageBundle,
+                objectMapper,
+                accessTokenMessageHandler,
+                quizStatusService);
+    }
 
-            private String extractCategoryCode(WebSocketSession session) {
-                String path = session.getUri().getPath();
-                int lastSlash = path.lastIndexOf('/');
-                if (lastSlash < 0 || lastSlash >= path.length() - 1) return null;
-                return path.substring(lastSlash + 1).toUpperCase();
-            }
+    @Bean
+    public Map<QuizCategory, WebSocketQuizHandler> quizHandlerRegistry(
+            WebSocketQuizHandler vocaQuizHandler,
+            WebSocketQuizHandler bibleQuizHandler) {
+        return Map.of(
+                QuizCategory.ENG_VOCA, vocaQuizHandler,
+                QuizCategory.BIBLE, bibleQuizHandler);
+    }
 
-            @Override
-            public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-                String code = extractCategoryCode(session);
-                if (code == null) {
-                    session.close(CloseStatus.BAD_DATA);
-                    return;
-                }
-                handlerRegistry.getOrCreate(code).afterConnectionEstablished(session);
-            }
-
-            @Override
-            public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
-                String code = extractCategoryCode(session);
-                if (code != null) {
-                    handlerRegistry.getOrCreate(code).handleMessage(session, message);
-                }
-            }
-
-            @Override
-            public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-                String code = extractCategoryCode(session);
-                if (code != null) {
-                    handlerRegistry.getOrCreate(code).handleTransportError(session, exception);
-                }
-            }
-
-            @Override
-            public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-                String code = extractCategoryCode(session);
-                if (code != null) {
-                    handlerRegistry.getOrCreate(code).afterConnectionClosed(session, status);
-                }
-            }
-
-            @Override
-            public boolean supportsPartialMessages() {
-                return false;
-            }
-        };
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(vocaQuizHandler(), "/api/ws/quiz/voca")
+                .addHandler(bibleQuizHandler(), "/api/ws/quiz/bible")
+                .setAllowedOrigins("http://localhost:8081", "https://rankingquiz.rivercastleworks.site");
     }
 }

@@ -2,12 +2,25 @@
 function initQuizWebSocket() {
     const wsUrl  = websocket_protocol + BACKEND_BASE_URL + '/ws/quiz/' + QUIZ_CATEGORY_CODE;
     const socket = new WebSocket(wsUrl);
+    let intentionalClose = false;
+
+    initServiceFeedbackModal(wsPath);
 
     document.getElementById('stop-button').addEventListener('click', function () {
+        const quizInProgress = !document.getElementById('quizSection').classList.contains('quiz-section--hidden');
+
+        if (quizInProgress) {
+            const confirmed = window.confirm('진행 상황이 저장되지 않을 수 있습니다. 나가시겠습니까?');
+            if (!confirmed) return;
+        }
+
+        intentionalClose = true;
         quizBoxOff();
         quizResultOff();
         guideMessageOff();
         socket.close();
+        showServiceFeedbackModal();
+        window.location.href = '/';
     });
 
     socket.onopen = function () {
@@ -27,8 +40,11 @@ function initQuizWebSocket() {
         console.error('WebSocket 오류:', error);
     };
 
+    socket.onclose = function () {};
     socket.onclose = function () {
-        window.open('/feedback', '_blank');
+        if (!intentionalClose) {
+            window.open('/feedback', '_blank');
+        }
     };
 
     socket.onmessage = function (event) {

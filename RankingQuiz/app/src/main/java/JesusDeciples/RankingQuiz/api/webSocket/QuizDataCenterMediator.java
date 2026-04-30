@@ -1,72 +1,62 @@
 package JesusDeciples.RankingQuiz.api.webSocket;
 
-import JesusDeciples.RankingQuiz.api.admin.service.QuizCategoryService;
 import JesusDeciples.RankingQuiz.api.dto.AnswerDto;
 import JesusDeciples.RankingQuiz.api.dto.QuizDto;
 import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
-import JesusDeciples.RankingQuiz.api.entity.QuizCategory;
-import JesusDeciples.RankingQuiz.api.facade.QuizQuizContentFacade;
-import JesusDeciples.RankingQuiz.api.facade.QuizScoreFacade;
-import JesusDeciples.RankingQuiz.api.service.quizDataCenter.GenericQuizDataCenter;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
+import JesusDeciples.RankingQuiz.api.service.quizDataCenter.QuizDataCenter;
 import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterState;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class QuizDataCenterMediator {
-
-    private final QuizCategoryService quizCategoryService;
-    private final QuizScoreFacade quizScoreFacade;
-    private final QuizQuizContentFacade quizQuizContentFacade;
+    private final Map<QuizCategory, QuizDataCenter> quizDataCenters;
     private final ObjectMapper objectMapper;
 
-    private final ConcurrentHashMap<String, GenericQuizDataCenter> dataCenters = new ConcurrentHashMap<>();
-
-    private GenericQuizDataCenter getOrCreate(String categoryCode) {
-        return dataCenters.computeIfAbsent(categoryCode, code -> {
-            QuizCategory cat = quizCategoryService.getCategory(code);
-            return new GenericQuizDataCenter(code, cat.isAllowMultipleWinners(),
-                    quizScoreFacade, quizQuizContentFacade);
-        });
+    public QuizDataCenterMediator(List<QuizDataCenter> dataCenters, ObjectMapper objectMapper) {
+        this.quizDataCenters = dataCenters.stream()
+                .collect(Collectors.toMap(QuizDataCenter::getCategory, dc -> dc));
+        this.objectMapper = objectMapper;
     }
 
-    public DataCenterState getQuizDataCenterState(String categoryCode) {
-        return getOrCreate(categoryCode).getPresentState();
+    public DataCenterState getQuizDataCenterState(QuizCategory category) {
+        return quizDataCenters.get(category).getPresentState();
     }
 
-    public void updateDataCenterStateAndAction(String categoryCode, DataCenterState dataCenterState) {
-        GenericQuizDataCenter dc = getOrCreate(categoryCode);
-        dc.setPresentState(dataCenterState);
-        dc.handle();
+    public void updateDataCenterStateAndAction(QuizCategory category, DataCenterState dataCenterState) {
+        QuizDataCenter quizDataCenter = quizDataCenters.get(category);
+        quizDataCenter.setPresentState(dataCenterState);
+        quizDataCenter.handle();
     }
 
-    public Map<String, QuizResultDto> getQuizResults(String categoryCode) {
-        return getOrCreate(categoryCode).getResults();
+    public Map<String, QuizResultDto> getQuizResults(QuizCategory category) {
+        return quizDataCenters.get(category).getResults();
     }
 
-    public QuizDto getPresentQuizDto(String categoryCode) {
-        return getOrCreate(categoryCode).getPresentQuizDto();
+    public QuizDto getPresentQuizDto(QuizCategory category) {
+        return quizDataCenters.get(category).getPresentQuizDto();
     }
 
-    public String getQuizWinnerName(String categoryCode) {
-        return getOrCreate(categoryCode).getWinnerName();
+    public String getQuizWinnerName(QuizCategory category) {
+        return quizDataCenters.get(category).getWinnerName();
     }
 
-    public void sendAnswerToDataCenter(String categoryCode, String sessionId, Long memberId, Object objectInMessage) {
-        GenericQuizDataCenter dc = getOrCreate(categoryCode);
-        Long presentQuizId = dc.getPresentQuizDto().getQuizId();
+    public void sendAnswerToDataCenter(QuizCategory category, String sessionId, Long memberId, Object objectInMessage) {
+        QuizDataCenter quizDataCenter = quizDataCenters.get(category);
+        Long presentQuizId = quizDataCenter.getPresentQuizDto().getQuizId();
         AnswerDto answerDto = objectMapper.convertValue(objectInMessage, AnswerDto.class);
         Long quizIdInAnswerDto = answerDto.getQuizId();
         answerDto.setWrittenAt(LocalDateTime.now());
         if (!presentQuizId.equals(quizIdInAnswerDto)) return;
+
         answerDto.setMemberId(memberId);
         answerDto.setSessionId(sessionId);
-        dc.loadAnswerFromUser(answerDto);
+        quizDataCenter.loadAnswerFromUser(answerDto);
     }
 }

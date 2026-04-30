@@ -11,20 +11,17 @@ import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.*;
 import JesusDeciples.RankingQuiz.api.webSocket.CustomTextMessageFactory;
 import JesusDeciples.RankingQuiz.api.webSocket.QuizDataCenterMediator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+public class WebSocketQuizHandler implements WebSocketHandler {
 
-@Component
-@RequiredArgsConstructor
-public class WebSocketVocaQuizHandler implements WebSocketHandler {
-    private final QuizCategory category = QuizCategory.ENG_VOCA;
+    private final QuizCategory category;
     private final Long waitingTime = 3000L;
     private final CustomTextMessageFactory textMessageFactory;
     private final QuizDataCenterMediator quizDataCenterMediator;
@@ -34,8 +31,25 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
     private final AccessTokenMessageHandler accessTokenMessageHandler;
     private final QuizStatusService quizStatusService;
 
+    public WebSocketQuizHandler(
+            QuizCategory category,
+            CustomTextMessageFactory textMessageFactory,
+            QuizDataCenterMediator quizDataCenterMediator,
+            GuideMessageBundle guideMessageBundle,
+            ObjectMapper objectMapper,
+            AccessTokenMessageHandler accessTokenMessageHandler,
+            QuizStatusService quizStatusService) {
+        this.category = category;
+        this.textMessageFactory = textMessageFactory;
+        this.quizDataCenterMediator = quizDataCenterMediator;
+        this.guideMessageBundle = guideMessageBundle;
+        this.objectMapper = objectMapper;
+        this.accessTokenMessageHandler = accessTokenMessageHandler;
+        this.quizStatusService = quizStatusService;
+    }
+
     @Scheduled(fixedDelay = 1000)
-    private void abcd() throws IOException, InterruptedException {
+    private void tick() throws IOException, InterruptedException {
         DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState(category);
         if (presentState instanceof COMPLETE_SCORE) {
             sendQuizResultMessage();
@@ -43,11 +57,10 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
             quizDataCenterMediator.updateDataCenterStateAndAction(category, new INIT_NEXT_QUIZ());
         } else if (presentState instanceof INIT_QUIZ || presentState instanceof INIT_NEXT_QUIZ) {
             quizDataCenterMediator.updateDataCenterStateAndAction(category, new ON_QUIZ());
-            // 퀴즈 메시지 전송
             QuizDto quizDto = quizDataCenterMediator.getPresentQuizDto(category);
             TextMessage quizMessage = textMessageFactory.produceTextMessage(quizDto);
             sendMessageToAllSessions(quizMessage);
-        } else { //COMPLETE_QUIZ, InIt SCORE, INIT_SCORE, ONQUIZ, WAITING
+        } else {
             quizDataCenterMediator.updateDataCenterStateAndAction(category, presentState);
         }
     }
@@ -55,7 +68,8 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws IOException {
         if (!quizStatusService.getStatus(category)) {
-            GuideMessage disabledMsg = new GuideMessage("현재 단어 퀴즈는 준비 중입니다. 잠시 후 다시 시도해주세요.");
+            GuideMessage disabledMsg = new GuideMessage(
+                    "현재 " + category.getDisplayName() + "는 준비 중입니다. 잠시 후 다시 시도해주세요.");
             disabledMsg.setDisplay(true);
             session.sendMessage(textMessageFactory.produceTextMessage(disabledMsg));
             session.close(CloseStatus.NOT_ACCEPTABLE);
@@ -64,7 +78,6 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
 
         DataCenterState presentState = quizDataCenterMediator.getQuizDataCenterState(category);
         sessions.put(session.getId(), session);
-        // 대기상태 중 새 세션
         if (presentState instanceof WAITING) {
             quizDataCenterMediator.updateDataCenterStateAndAction(category, new INIT_QUIZ());
         }
@@ -82,23 +95,43 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
 
         switch (dataType) {
             case "AccessToken" -> {
-                Long memberId =
-                        accessTokenMessageHandler.handleAccessTokenMessageObject(objectInMessage);
-
-                boolean connectionCheckResult = memberId == null ? true : checkConnectionAlready(session, memberId);
-                if (connectionCheckResult) session.getAttributes().put("memberId", memberId);
+                Long memberId = accessTokenMessageHandler.handleAccessTokenMessageObject(objectInMessage);
+                boolean ok = memberId == null || checkConnectionAlready(session, memberId);
+                if (ok) session.getAttributes().put("memberId", memberId);
             }
-
             case "AnswerDto" -> {
                 if (!(presentState instanceof COMPLETE_QUIZ || presentState instanceof ON_QUIZ)) return;
                 Long memberId = (Long) session.getAttributes().get("memberId");
                 quizDataCenterMediator.sendAnswerToDataCenter(category, session.getId(), memberId, objectInMessage);
-                TextMessage guideMessage =
-                        textMessageFactory.produceTextMessage(guideMessageBundle.getAnswerSubmittedMessage());
-                session.sendMessage(guideMessage);
-                return;
+                session.sendMessage(textMessageFactory.produceTextMessage(guideMessageBundle.getAnswerSubmittedMessage()));
             }
         }
+    }
+
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+        session.sendMessage(textMessageFactory.produceTextMessage(guideMessageBundle.getErrorMessage()));
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+        sessions.remove(session.getId());
+        if (sessions.isEmpty()) {
+            quizDataCenterMediator.updateDataCenterStateAndAction(category, new WAITING());
+        }
+    }
+
+    @Override
+    public boolean supportsPartialMessages() {
+        return false;
+    }
+
+    public int getSessionCount() {
+        return sessions.size();
+    }
+
+    public QuizCategory getCategory() {
+        return category;
     }
 
     private boolean checkConnectionAlready(WebSocketSession session, Long memberId) throws IOException {
@@ -122,42 +155,6 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
         session.sendMessage(message);
     }
 
-    private void sendMessageToSpecificSessionsGroup(TextMessage message, Set<String> sessionIds) throws IOException {
-        for (String sessionId : sessionIds) sessions.get(sessionId).sendMessage(message);
-    }
-
-    /*
-    설명:
-    WebSocketMessage은 두 타입을 가진다. BinaryMessage /  TextMessage
-    우선 현재 서비스에서 사용되는 타입은 텍스트메시지이므로 TextMessage만 Handler하도록 구현한다.
-
-    추후에 기능 확장을 위해 이진메시지도 다뤄야하므로
-    TextMessageHandler / BinaryMessageHandler를 WebSocketQuizHandler와 분리
-     */
-
-    @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        session.sendMessage(textMessageFactory.produceTextMessage(
-                guideMessageBundle.getErrorMessage()));
-    }
-
-    @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
-        sessions.remove(session.getId());
-        if (sessions.isEmpty()) {
-            quizDataCenterMediator.updateDataCenterStateAndAction(category, new WAITING());
-        }
-    }
-
-    @Override
-    public boolean supportsPartialMessages() {
-        return false;
-    }
-
-    public int getSessionCount() {
-        return sessions.size();
-    }
-
     private void sendQuizResultMessage() throws IOException {
         Set<String> sessionIds = sessions.keySet();
         Map<String, QuizResultDto> results = quizDataCenterMediator.getQuizResults(category);
@@ -165,22 +162,20 @@ public class WebSocketVocaQuizHandler implements WebSocketHandler {
 
         String winnerName = quizDataCenterMediator.getQuizWinnerName(category);
         String winnerText = winnerName == null ? "없습니다." : winnerName + "님입니다.";
-        // [Fix] 싱글턴 GuideMessageBundle에 저장하지 않고 로컬 인스턴스 직접 사용
         GuideMessage winnerNotification = new GuideMessage("이번 퀴즈의 우승자는 " + winnerText);
         winnerNotification.setDisplay(true);
         TextMessage winnerAnnouncementMessage = textMessageFactory.produceTextMessage(winnerNotification);
 
         for (String sessionId : sessionIds) {
-            // [Fix] 루프 중 세션이 닫힌 경우 NPE 방지
             WebSocketSession session = sessions.get(sessionId);
             if (session == null || !session.isOpen()) continue;
 
             if (sessionIdsOfParticipants.contains(sessionId)) {
-                TextMessage resultMessage = textMessageFactory.produceTextMessage(results.get(sessionId));
-                session.sendMessage(resultMessage);
+                QuizResultDto resultDto = results.get(sessionId);
+                resultDto.setWinnerName(winnerName);
+                session.sendMessage(textMessageFactory.produceTextMessage(resultDto));
                 session.sendMessage(winnerAnnouncementMessage);
             } else {
-                // [Fix] 싱글턴 GuideMessage를 변이하지 않고 새 인스턴스 생성
                 GuideMessage notParticipated = new GuideMessage(
                         guideMessageBundle.getNotParticipatedMessage().getMessage());
                 notParticipated.setDisplay(true);

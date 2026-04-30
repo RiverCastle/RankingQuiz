@@ -7,6 +7,7 @@ import JesusDeciples.RankingQuiz.api.dto.response.QuizResultDto;
 import JesusDeciples.RankingQuiz.api.entity.quiz.Quiz;
 import JesusDeciples.RankingQuiz.api.facade.QuizQuizContentFacade;
 import JesusDeciples.RankingQuiz.api.facade.QuizScoreFacade;
+import JesusDeciples.RankingQuiz.api.enums.QuizCategory;
 import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.DataCenterState;
 import JesusDeciples.RankingQuiz.api.service.quizDataCenter.state.WAITING;
 import lombok.Getter;
@@ -146,5 +147,10 @@ public class GenericQuizDataCenter extends QuizDataCenter {
         haveAnswered.clear();
         results.clear();
         winnerName = null;
+    }
+
+    @Override
+    public QuizCategory getCategory() {
+        return QuizCategory.valueOf(categoryCode);
     }
 }
