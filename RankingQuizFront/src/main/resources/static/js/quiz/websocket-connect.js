@@ -4,11 +4,14 @@ function initQuizWebSocket(wsPath) {
     const wsUrl  = websocket_protocol + BACKEND_BASE_URL + '/ws/quiz/' + wsPath;
     const socket = new WebSocket(wsUrl);
 
+    initServiceFeedbackModal(wsPath);
+
     document.getElementById('stop-button').addEventListener('click', function () {
         quizBoxOff();
         quizResultOff();
         guideMessageOff();
         socket.close();
+        showServiceFeedbackModal();
     });
 
     socket.onopen = function () {
@@ -28,9 +31,7 @@ function initQuizWebSocket(wsPath) {
         console.error('WebSocket 오류:', error);
     };
 
-    socket.onclose = function () {
-        window.open('/feedback', '_blank');
-    };
+    socket.onclose = function () {};
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
