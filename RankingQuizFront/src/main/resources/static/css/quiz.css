@@ -79,6 +79,94 @@
 }
 
 /* =============================================
+   Service Feedback Modal
+   ============================================= */
+.score-btn.score-selected {
+    background: rgba(0, 240, 255, 0.2);
+    border-color: rgba(0, 240, 255, 0.6);
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+}
+
+.tag-btn {
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tag-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.tag-btn.tag-selected {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+}
+
+#submitFeedbackBtn:not(:disabled) {
+    background: rgba(0, 240, 255, 0.2);
+    border-color: rgba(0, 240, 255, 0.5);
+    color: #00f0ff;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+}
+
+#submitFeedbackBtn:not(:disabled):hover {
+    background: rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+/* GitHub Issue 카테고리 칩 */
+.github-cat-btn {
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.github-cat-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.github-cat-btn.github-cat-selected {
+    background: rgba(191, 0, 255, 0.15);
+    border-color: #bf00ff;
+    color: #bf00ff;
+    box-shadow: 0 0 8px rgba(191, 0, 255, 0.2);
+}
+
+/* GitHub 제출 버튼 활성 상태 */
+#submitGithubFeedbackBtn:not(:disabled) {
+    background: rgba(191, 0, 255, 0.2);
+    border-color: rgba(191, 0, 255, 0.5);
+    color: #bf00ff;
+    box-shadow: 0 0 15px rgba(191, 0, 255, 0.2);
+}
+
+#submitGithubFeedbackBtn:not(:disabled):hover {
+    background: rgba(191, 0, 255, 0.3);
+    box-shadow: 0 0 25px rgba(191, 0, 255, 0.35);
+    transform: translateY(-1px);
+}
+
+/* =============================================
    Quiz Result
    ============================================= */
 .result-correct {

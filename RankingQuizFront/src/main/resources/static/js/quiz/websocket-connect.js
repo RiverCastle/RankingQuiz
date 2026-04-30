@@ -5,6 +5,8 @@ function initQuizWebSocket(wsPath) {
     const socket = new WebSocket(wsUrl);
     let intentionalClose = false;
 
+    initServiceFeedbackModal(wsPath);
+
     document.getElementById('stop-button').addEventListener('click', function () {
         const quizInProgress = !document.getElementById('quizSection').classList.contains('quiz-section--hidden');
 
@@ -18,6 +20,7 @@ function initQuizWebSocket(wsPath) {
         quizResultOff();
         guideMessageOff();
         socket.close();
+        showServiceFeedbackModal();
         window.location.href = '/';
     });
 
@@ -38,6 +41,7 @@ function initQuizWebSocket(wsPath) {
         console.error('WebSocket 오류:', error);
     };
 
+    socket.onclose = function () {};
     socket.onclose = function () {
         if (!intentionalClose) {
             window.open('/feedback', '_blank');

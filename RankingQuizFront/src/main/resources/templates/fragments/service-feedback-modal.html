@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="serviceFeedbackModal">
+
+  <!-- Service Feedback Modal Overlay -->
+  <div
+    id="serviceFeedbackModal"
+    class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm"
+  >
+    <div class="w-full max-w-md card-glass rounded-t-3xl p-6 pb-10 flex flex-col gap-5">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-white font-bold text-base">오늘의 퀴즈 체험은 어떠셨나요?</h2>
+        <button
+          id="skipFeedbackBtn"
+          class="text-white/40 hover:text-white/70 text-xs font-medium transition-colors duration-150"
+        >
+          그냥 나가기
+        </button>
+      </div>
+
+      <!-- Level 1: Satisfaction Score -->
+      <div>
+        <p class="text-white/40 text-xs mb-3 tracking-wider uppercase">만족도</p>
+        <div class="flex justify-between gap-2" id="scoreButtons">
+          <button class="score-btn flex-1 py-3 rounded-2xl text-xl bg-white/5 border border-white/10 transition-all duration-150" data-score="1">😠</button>
+          <button class="score-btn flex-1 py-3 rounded-2xl text-xl bg-white/5 border border-white/10 transition-all duration-150" data-score="2">😟</button>
+          <button class="score-btn flex-1 py-3 rounded-2xl text-xl bg-white/5 border border-white/10 transition-all duration-150" data-score="3">😐</button>
+          <button class="score-btn flex-1 py-3 rounded-2xl text-xl bg-white/5 border border-white/10 transition-all duration-150" data-score="4">😊</button>
+          <button class="score-btn flex-1 py-3 rounded-2xl text-xl bg-white/5 border border-white/10 transition-all duration-150" data-score="5">😍</button>
+        </div>
+      </div>
+
+      <!-- Level 2: Service Tags -->
+      <div>
+        <p class="text-white/40 text-xs mb-3 tracking-wider uppercase">서비스 인상 <span class="text-white/25 normal-case">(복수 선택 가능)</span></p>
+        <div class="flex flex-wrap gap-2" id="tagButtons">
+          <button class="tag-btn" data-tag="UI가 예뻐요">UI가 예뻐요</button>
+          <button class="tag-btn" data-tag="로딩이 빨라요">로딩이 빨라요</button>
+          <button class="tag-btn" data-tag="또 하러 올게요">또 하러 올게요</button>
+          <button class="tag-btn" data-tag="조작이 편해요">조작이 편해요</button>
+          <button class="tag-btn" data-tag="가독성이 떨어져요">가독성이 떨어져요</button>
+          <button class="tag-btn" data-tag="렉이 걸려요">렉이 걸려요</button>
+          <button class="tag-btn" data-tag="사용법이 어려워요">사용법이 어려워요</button>
+          <button class="tag-btn" data-tag="디자인이 아쉬워요">디자인이 아쉬워요</button>
+        </div>
+      </div>
+
+      <!-- Level 3: Optional comment -->
+      <div>
+        <textarea
+          id="feedbackComment"
+          rows="2"
+          placeholder="서비스 발전을 위한 한 마디 (선택)"
+          class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white/80 placeholder-white/30 resize-none focus:outline-none focus:border-white/30 transition-colors duration-150"
+        ></textarea>
+      </div>
+
+      <!-- Level 4: GitHub Issue 피드백 (접기/펼치기, 선택) -->
+      <div>
+        <div class="h-px bg-white/10 mb-4"></div>
+        <button
+          id="githubSectionToggle"
+          class="w-full flex items-center justify-between text-white/40 hover:text-white/70 text-xs font-medium transition-colors duration-150"
+        >
+          <span id="githubToggleLabel">▶&nbsp; 불편한 점이나 제안이 있으신가요?</span>
+          <span class="text-white/25 text-xs">선택</span>
+        </button>
+
+        <div id="githubFeedbackSection" class="hidden flex flex-col gap-3 mt-4">
+
+          <!-- 카테고리 선택 -->
+          <div class="flex flex-wrap gap-2" id="githubCategoryButtons">
+            <button class="github-cat-btn" data-category="NewFeatureProposal">💡 이런 기능 있으면 좋겠어요</button>
+            <button class="github-cat-btn" data-category="BackendIssue">⚙️ 기능이 작동하지 않아요</button>
+            <button class="github-cat-btn" data-category="FrontendIssue">🖥️ 화면이 이상해요</button>
+            <button class="github-cat-btn" data-category="NotSelected">💬 기타</button>
+          </div>
+
+          <!-- 내용 입력 -->
+          <textarea
+            id="githubFeedbackContent"
+            rows="3"
+            placeholder="불편한 점이나 제안을 자유롭게 적어주세요"
+            class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white/80 placeholder-white/30 resize-none focus:outline-none focus:border-white/30 transition-colors duration-150"
+          ></textarea>
+
+          <!-- 제출 / 성공 -->
+          <button
+            id="submitGithubFeedbackBtn"
+            disabled
+            class="w-full py-3 rounded-2xl text-sm font-bold transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed text-white/90 bg-white/10 border border-white/20"
+          >
+            의견 전달하기
+          </button>
+          <p id="githubSubmitSuccess" class="hidden text-center text-sm text-green-400 font-medium">
+            ✅ 의견이 전달되었습니다
+          </p>
+
+        </div>
+      </div>
+
+      <!-- Submit button -->
+      <button
+        id="submitFeedbackBtn"
+        disabled
+        class="w-full py-3.5 rounded-2xl text-sm font-bold text-white/90 bg-white/10 border border-white/20 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        제출 후 나가기
+      </button>
+
+    </div>
+  </div>
+
+</th:block>
+</body>
+</html>
