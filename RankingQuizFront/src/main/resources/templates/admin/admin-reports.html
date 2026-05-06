@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('신고 관리 - RankingQuiz', @{/css/admin.css})}"></head>
+
+<body class="font-display min-h-screen bg-surface-base text-white overflow-x-hidden">
+
+  <!-- Background effects -->
+  <div class="fixed inset-0 bg-grid pointer-events-none"></div>
+  <div class="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-neon-blue opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+  <div class="fixed bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-neon-purple opacity-[0.06] rounded-full blur-[100px] pointer-events-none"></div>
+
+  <div class="relative z-10 flex flex-col min-h-screen max-w-2xl mx-auto px-5 pb-10">
+
+    <!-- Header -->
+    <header class="pt-10 pb-6 flex items-center justify-between">
+      <div>
+        <p class="text-white/40 text-xs tracking-widest uppercase mb-1">Admin Panel</p>
+        <h1 class="brand-font text-3xl leading-none">
+          <span class="text-white">Ranking</span><span class="text-neon-blue neon-text">Quiz</span>
+          <span class="text-white/60 text-xl ml-2">신고 관리</span>
+        </h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/admin" class="text-white/40 hover:text-white/70 text-sm transition-colors">← 관리 홈</a>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div id="reportsContent" class="hidden">
+
+      <!-- 상단 통계 -->
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="card-glass rounded-2xl p-4 text-center">
+          <p class="text-white/40 text-xs uppercase tracking-wide mb-1">전체 신고</p>
+          <p id="count-total" class="text-2xl font-bold text-white">-</p>
+        </div>
+        <div class="card-glass rounded-2xl p-4 text-center">
+          <p class="text-white/40 text-xs uppercase tracking-wide mb-1">미확인</p>
+          <p id="count-unread" class="text-2xl font-bold text-neon-blue">-</p>
+        </div>
+        <div class="card-glass rounded-2xl p-4 text-center">
+          <p class="text-white/40 text-xs uppercase tracking-wide mb-1">해결 완료</p>
+          <p id="count-resolved" class="text-2xl font-bold text-neon-purple">-</p>
+        </div>
+      </div>
+
+      <!-- 신고 목록 -->
+      <p class="text-white/40 text-xs tracking-wider uppercase mb-3">신고 내역</p>
+
+      <div id="reportsList" class="space-y-3"></div>
+
+      <div id="emptyState" class="hidden card-glass rounded-3xl p-10 text-center">
+        <p class="text-4xl mb-3">✅</p>
+        <p class="text-white/60 text-sm">처리되지 않은 신고가 없습니다.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 상세 보기 모달 ===== -->
+  <div id="reportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-5">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+    <div class="relative w-full max-w-lg card-glass rounded-3xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+
+      <!-- 모달 헤더 -->
+      <div class="flex items-start justify-between">
+        <div>
+          <span id="modal-status-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold mb-2"></span>
+          <h2 class="text-lg font-bold">신고 상세</h2>
+          <p id="modal-meta" class="text-white/40 text-xs mt-0.5"></p>
+        </div>
+        <button onclick="closeModal()" class="text-white/40 hover:text-white/70 text-xl transition-colors ml-4">✕</button>
+      </div>
+
+      <!-- 문제 비교 -->
+      <div class="space-y-3">
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <p class="text-white/40 text-xs uppercase tracking-wide mb-2">신고된 문제</p>
+          <p id="modal-question" class="text-white text-sm leading-relaxed"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-neon-blue/5 border border-neon-blue/20 rounded-2xl p-4">
+            <p class="text-neon-blue/60 text-xs uppercase tracking-wide mb-2">원본 정답</p>
+            <p id="modal-original-answer" class="text-white font-bold text-sm"></p>
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <p class="text-white/40 text-xs uppercase tracking-wide mb-2">사용자 답변</p>
+            <p id="modal-user-answer" class="text-white/80 text-sm"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 신고자 정보 -->
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-3">
+        <span class="text-2xl">👤</span>
+        <div>
+          <p class="text-white/40 text-xs uppercase tracking-wide">신고자 ID</p>
+          <p id="modal-reporter" class="text-white text-sm font-medium mt-0.5"></p>
+        </div>
+      </div>
+
+      <!-- 액션 버튼 -->
+      <div class="space-y-2 pt-1">
+        <button id="btn-edit" onclick="goToEdit()" class="w-full py-3 rounded-2xl text-sm font-bold tracking-wide border border-white/20 text-white/70 hover:bg-white/5 hover:text-white transition-all">
+          ✏️ 문제 수정하러 가기
+        </button>
+        <button id="btn-resolve" onclick="resolveReport()" class="w-full py-3 rounded-2xl text-sm font-bold tracking-wide bg-neon-blue/10 border border-neon-blue/30 text-neon-blue hover:bg-neon-blue/20 transition-all">
+          ✅ 해결 완료
+        </button>
+        <button id="btn-delete" onclick="deleteReport()" class="w-full py-3 rounded-2xl text-sm font-bold tracking-wide bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-all">
+          🗑️ 삭제 (심각한 오류)
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 토스트 -->
+  <div id="toast" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] card-glass rounded-2xl px-6 py-3 text-sm text-center text-white/90 transition-opacity"></div>
+
+  <script th:src="@{/js/config.js}"></script>
+  <script th:src="@{/js/admin-reports.js}"></script>
+
+</body>
+</html>
