@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSessionCounts();
   setInterval(loadSessionCounts, 15000);
   document.getElementById('tab-bulk').addEventListener('click', () => switchTab('bulk'));
+  document.getElementById('tab-suggestion').addEventListener('click', () => {
+    switchTab('suggestion');
+    loadSuggestions();
+  });
 });
 
 // =============================================
@@ -30,7 +34,7 @@ function initTabs() {
 }
 
 function switchTab(name) {
-  ['home', 'register', 'bulk'].forEach(t => {
+  ['home', 'register', 'bulk', 'suggestion'].forEach(t => {
     document.getElementById(`tab-${t}`).classList.toggle('active', t === name);
     document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== name);
   });
@@ -317,4 +321,150 @@ function resetForm() {
     el.value = '';
     el.placeholder = `보기 ${i + 1}`;
   });
+}
+
+// =============================================
+// 제안 검토 — 목록 조회
+// =============================================
+async function loadSuggestions() {
+  const listEl = document.getElementById('suggestionList');
+  const emptyEl = document.getElementById('suggestionEmpty');
+  listEl.innerHTML = '<p class="text-white/30 text-sm text-center py-8">불러오는 중...</p>';
+  emptyEl.classList.add('hidden');
+
+  try {
+    const res = await fetch(`${protocol}${BACKEND_BASE_URL}/quiz-suggestions`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    if (!res.ok) throw new Error('권한이 없습니다.');
+    const data = await res.json();
+
+    listEl.innerHTML = '';
+    if (data.length === 0) {
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    data.forEach(suggestion => {
+      listEl.appendChild(createSuggestionCard(suggestion));
+    });
+  } catch (e) {
+    listEl.innerHTML = `<p class="text-red-400 text-sm text-center py-8">조회 실패: ${e.message}</p>`;
+  }
+}
+
+function createSuggestionCard(s) {
+  const categoryLabel = s.category === 'ENG_VOCA' ? '📖 단어 퀴즈' : '✝️ 성경 퀴즈';
+  const choicesList = (s.choices || []).map((c, i) =>
+    `<span class="inline-block bg-white/10 rounded-lg px-2 py-0.5 text-xs text-white/70 mr-1 mb-1">${i + 1}. ${c}</span>`
+  ).join('');
+
+  const card = document.createElement('div');
+  card.id = `suggestion-card-${s.id}`;
+  card.className = 'card-glass rounded-3xl p-5 space-y-3';
+  card.innerHTML = `
+    <div class="flex items-center justify-between">
+      <span class="text-xs text-white/40">${categoryLabel}</span>
+      <span class="text-xs text-white/20">#${s.id} · ${formatDate(s.createdAt)}</span>
+    </div>
+    <p class="text-white text-sm font-bold leading-relaxed">${escapeHtml(s.statement)}</p>
+    <div>
+      <p class="text-white/40 text-xs mb-1">보기</p>
+      <div>${choicesList}</div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-white/40 text-xs">정답</span>
+      <span class="text-neon-blue text-sm font-bold">${escapeHtml(s.answer)}</span>
+    </div>
+    <div class="flex gap-3 pt-1">
+      <button
+        onclick="approveSuggestion(${s.id})"
+        class="flex-1 bg-gradient-to-br from-neon-blue to-neon-blue-dark text-surface-base font-bold rounded-2xl py-3 text-sm tracking-wide hover:opacity-90 transition-opacity">
+        ✅ 승인
+      </button>
+      <button
+        onclick="rejectSuggestion(${s.id})"
+        class="flex-1 bg-white/10 border border-white/20 text-white/70 font-bold rounded-2xl py-3 text-sm tracking-wide hover:bg-white/20 transition-colors">
+        ❌ 반려
+      </button>
+    </div>
+  `;
+  return card;
+}
+
+// =============================================
+// 제안 검토 — 승인
+// =============================================
+async function approveSuggestion(id) {
+  try {
+    const res = await fetch(`${protocol}${BACKEND_BASE_URL}/quiz-suggestions/${id}/approve`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    if (!res.ok) throw new Error('승인 처리에 실패했습니다.');
+    removeSuggestionCard(id);
+    showSuggestionToast('✅ 제안이 승인되어 퀴즈에 등록되었습니다.');
+  } catch (e) {
+    showSuggestionToast('❌ ' + e.message);
+  }
+}
+
+// =============================================
+// 제안 검토 — 반려
+// =============================================
+async function rejectSuggestion(id) {
+  try {
+    const res = await fetch(`${protocol}${BACKEND_BASE_URL}/quiz-suggestions/${id}/reject`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    if (!res.ok) throw new Error('반려 처리에 실패했습니다.');
+    removeSuggestionCard(id);
+    showSuggestionToast('제안이 반려되었습니다.');
+  } catch (e) {
+    showSuggestionToast('❌ ' + e.message);
+  }
+}
+
+function removeSuggestionCard(id) {
+  const card = document.getElementById(`suggestion-card-${id}`);
+  if (card) card.remove();
+  const listEl = document.getElementById('suggestionList');
+  if (listEl.children.length === 0) {
+    document.getElementById('suggestionEmpty').classList.remove('hidden');
+  }
+}
+
+let suggestionToastTimer;
+function showSuggestionToast(message) {
+  const toast = document.getElementById('suggestionToast');
+  clearTimeout(suggestionToastTimer);
+  toast.textContent = message;
+  toast.classList.remove('hidden', 'fade-out');
+  suggestionToastTimer = setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.classList.add('hidden'), 300);
+  }, 2500);
+}
+
+// =============================================
+// 유틸 함수
+// =============================================
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatDate(dateArr) {
+  if (!dateArr) return '';
+  // LocalDateTime이 배열로 올 경우: [2025,5,6,12,30,0]
+  if (Array.isArray(dateArr)) {
+    const [y, mo, d, h, mi] = dateArr;
+    return `${y}.${String(mo).padStart(2,'0')}.${String(d).padStart(2,'0')} ${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;
+  }
+  // 문자열로 올 경우
+  return new Date(dateArr).toLocaleString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
 }

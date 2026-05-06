@@ -36,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/quiz-sessions/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/member/**").authenticated()
                         .requestMatchers("/api/quiz-results/**").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/quiz-suggestions").permitAll()
+                        .requestMatchers("/api/quiz-suggestions/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JWTFilter(jwtProducer), UsernamePasswordAuthenticationFilter.class);

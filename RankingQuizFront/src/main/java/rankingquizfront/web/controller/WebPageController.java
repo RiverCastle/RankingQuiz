@@ -32,6 +32,11 @@ public class WebPageController {
         return "quiz/bible/bible";
     }
 
+    @GetMapping("/suggest")
+    public String suggestQuiz() {
+        return "suggest/suggest-quiz";
+    }
+
     @SuppressWarnings("unchecked")
     private boolean isQuizEnabled(String category) {
         try {
