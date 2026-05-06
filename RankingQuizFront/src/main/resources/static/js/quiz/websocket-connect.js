@@ -61,7 +61,7 @@ function initQuizWebSocket(wsPath) {
             case 'QuizResultDto':
                 guideMessageOff();
                 quizBoxOff();
-                quizResultUpdate(data.object);
+                quizResultUpdate(data.object, wsPath);
                 quizResultOn();
                 break;
 

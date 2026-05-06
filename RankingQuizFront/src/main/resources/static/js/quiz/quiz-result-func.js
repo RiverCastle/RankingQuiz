@@ -1,4 +1,4 @@
-function quizResultUpdate(quizResultObject) {
+function quizResultUpdate(quizResultObject, category) {
     const isCorrectEl   = document.getElementById('isCorrect');
     const statementEl   = document.getElementById('statement');
     const quizAnswerEl  = document.getElementById('quizAnswer');
@@ -24,6 +24,15 @@ function quizResultUpdate(quizResultObject) {
             winnerNameEl.textContent = '정답자가 없습니다';
         }
     }
+
+    const quizId = Number(document.getElementById('quizId').textContent) || null;
+    setReportData(
+        quizId,
+        category || null,
+        quizResultObject.statement,
+        quizResultObject.answer,
+        quizResultObject.myAnswer ?? null
+    );
 }
 
 function quizResultOn() {
