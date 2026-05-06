@@ -54,6 +54,7 @@ function initQuizWebSocket(wsPath) {
         switch (data.dataType) {
             case 'QuizDto':
                 quizResultOff();
+                disableReportBtn();
                 guideMessageOff();
                 quizItemUpdate(data.object, socket);
                 break;
@@ -61,8 +62,9 @@ function initQuizWebSocket(wsPath) {
             case 'QuizResultDto':
                 guideMessageOff();
                 quizBoxOff();
-                quizResultUpdate(data.object, wsPath);
+                quizResultUpdate(data.object);
                 quizResultOn();
+                enableReportBtn(wsPath, data.object);
                 break;
 
             case 'GuideMessage':
