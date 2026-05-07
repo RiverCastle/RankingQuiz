@@ -7,10 +7,15 @@ import JesusDeciples.RankingQuiz.api.dto.response.QuizContentReviewDto;
 import JesusDeciples.RankingQuiz.api.facade.QuizContentCreateFacade;
 import JesusDeciples.RankingQuiz.api.facade.QuizContentReadFacade;
 import JesusDeciples.RankingQuiz.api.service.BulkImportService;
+import JesusDeciples.RankingQuiz.api.service.quizContent.QuizContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +30,23 @@ public class QuizContentController {
     private final QuizContentCreateFacade quizContentCreateFacade;
     private final QuizContentReadFacade readFacade;
     private final BulkImportService bulkImportService;
+    private final QuizContentService quizContentService;
+
+    @GetMapping
+    @Operation(summary = "QuizContent 목록 조회 (관리자)",
+            description = "카테고리 및 정답 키워드로 필터링된 퀴즈 목록을 페이징하여 반환합니다.")
+    public ResponseEntity<Page<QuizContentReviewDto>> getQuizContents(
+            @RequestParam(required = false) QuizCategory category,
+            @RequestParam(required = false) String answer,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<QuizContentReviewDto> result = quizContentService
+                .getQuizContentPage(category, answer, pageable)
+                .map(QuizContentReviewDto::of);
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping
     @Operation(summary = "QuizContent 등록",
             description = "주어진 QuizContentCreateDto 배열을 사용하여 퀴즈 콘텐츠를 등록합니다.")

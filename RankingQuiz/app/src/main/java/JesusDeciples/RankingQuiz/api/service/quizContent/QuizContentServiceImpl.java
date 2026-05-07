@@ -8,6 +8,8 @@ import JesusDeciples.RankingQuiz.api.repository.MultipleChoiceQuizContentReposit
 import JesusDeciples.RankingQuiz.api.repository.QuizContentRepository;
 import JesusDeciples.RankingQuiz.api.repository.ShortAnswerQuizContentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -72,6 +74,22 @@ public class QuizContentServiceImpl implements QuizContentService {
     @Override
     public List<QuizContent> findAllByReferenceTagIn(Set<ReferenceTag> tagSet) {
         return repository.findDistinctAllByTagIn(tagSet);
+    }
+
+    @Override
+    public Page<QuizContent> getQuizContentPage(QuizCategory category, String answer, Pageable pageable) {
+        boolean hasCategory = category != null;
+        boolean hasAnswer = answer != null && !answer.isBlank();
+
+        if (hasCategory && hasAnswer) {
+            return repository.findByCategoryAndAnswerContainingIgnoreCase(category, answer, pageable);
+        } else if (hasCategory) {
+            return repository.findByCategory(category, pageable);
+        } else if (hasAnswer) {
+            return repository.findByAnswerContainingIgnoreCase(answer, pageable);
+        } else {
+            return repository.findAll(pageable);
+        }
     }
 }
 

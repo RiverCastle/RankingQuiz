@@ -23,6 +23,7 @@ public class QuizContentReviewDto {
         dto.setId(entity.getId());
         dto.setStatement(entity.getStatement());
         dto.setAnswer(entity.getAnswer());
+        dto.setCategory(entity.getCategory());
         if (entity instanceof MultipleChoiceQuizContent) {
             dto.setOptions(((MultipleChoiceQuizContent) entity).getOptions());
         }
