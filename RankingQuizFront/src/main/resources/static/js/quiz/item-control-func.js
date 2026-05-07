@@ -19,6 +19,23 @@ function quizItemUpdate(quizObject, socket) {
     document.getElementById('quizId').textContent        = quizId;
     document.getElementById('quizStatement').textContent = quizObject.quizContentDto.statement;
 
+    // 이미지 퀴즈: imageUrl이 있으면 이미지 영역 표시, 없으면 숨김
+    // imageUrl은 "/uploads/quiz-images/xxx.jpg" 형태로 백엔드 서버 경로이므로
+    // config.js의 protocol + BACKEND_BASE_URL(host만)을 앞에 붙여야 함
+    const imageContainer = document.getElementById('quizImageContainer');
+    const quizImage      = document.getElementById('quizImage');
+    if (imageContainer && quizImage) {
+        const imageUrl = quizObject.quizContentDto.imageUrl;
+        if (imageUrl) {
+            const backendHost = protocol + BACKEND_BASE_URL.replace('/api', '');
+            quizImage.src = backendHost + imageUrl;
+            imageContainer.classList.remove('hidden');
+        } else {
+            quizImage.src = '';
+            imageContainer.classList.add('hidden');
+        }
+    }
+
     if (_countdownInterval !== null) {
         clearInterval(_countdownInterval);
         _countdownInterval = null;
