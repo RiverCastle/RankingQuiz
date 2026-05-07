@@ -38,7 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/quiz/reports/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/member/**").authenticated()
                         .requestMatchers("/api/quiz-results/**").authenticated()
-                        .requestMatchers("/api/quiz/reports").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/quiz/reports").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/quiz-suggestions").permitAll()
                         .requestMatchers("/api/quiz-suggestions/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().permitAll()

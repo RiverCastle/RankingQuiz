@@ -6,10 +6,12 @@ let _reportData = {
     myAnswer: null
 };
 
+const _categoryMap = { voca: 'ENG_VOCA', bible: 'BIBLE' };
+
 function enableReportBtn(category, quizResultObject) {
     _reportData = {
         quizId:   Number(document.getElementById('quizId').textContent) || null,
-        category: category,
+        category: _categoryMap[category] ?? category,
         question: quizResultObject.statement,
         answer:   quizResultObject.answer,
         myAnswer: quizResultObject.myAnswer ?? null
@@ -48,13 +50,12 @@ function reportQuizIssue() {
 
     const reporterId = sessionStorage.getItem('username') || 'anonymous';
     const payload = {
-        quizId:     _reportData.quizId,
-        category:   _reportData.category,
-        question:   _reportData.question,
-        answer:     _reportData.answer,
-        myAnswer:   _reportData.myAnswer,
-        reporterId: reporterId,
-        reportedAt: new Date().toISOString().slice(0, 19)
+        quizId:         _reportData.quizId,
+        category:       _reportData.category,
+        question:       _reportData.question,
+        originalAnswer: _reportData.answer,
+        userAnswer:     _reportData.myAnswer,
+        reporterId:     reporterId
     };
 
     fetch(protocol + BACKEND_BASE_URL + '/quiz/reports', {
@@ -72,6 +73,8 @@ function reportQuizIssue() {
                 'd="M5 13l4 4L19 7"/>' +
                 '</svg>' +
                 '신고 완료';
+        } else {
+            console.error('신고 API 오류:', res.status);
         }
     })
     .catch(err => console.error('신고 전송 오류:', err));
