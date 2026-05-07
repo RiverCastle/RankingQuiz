@@ -120,18 +120,22 @@
         <span class="text-white/30 group-hover:text-white/60 transition-colors text-sm">→</span>
       </a>
 
-      <div class="flex gap-2 mb-6">
+      <div class="grid grid-cols-2 gap-2 mb-6">
         <button id="tab-home"
-          class="admin-tab active flex-1 py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
+          class="admin-tab active py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
           &#127968; 퀴즈 현황
         </button>
         <button id="tab-manage"
-          class="admin-tab flex-1 py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
-          📝 개별 퀴즈 관리
+          class="admin-tab py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
+          📝 퀴즈 관리
         </button>
         <button id="tab-bulk"
-          class="admin-tab flex-1 py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
+          class="admin-tab py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
           &#128203; 대량 등록
+        </button>
+        <button id="tab-suggestion"
+          class="admin-tab py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
+          💡 제안 검토
         </button>
       </div>
 
@@ -418,6 +422,32 @@
           <!-- 결과 영역 -->
           <div id="bulkResult" class="hidden space-y-2"></div>
         </div>
+      </div>
+
+      <!-- ===== 탭 4: 제안 검토 ===== -->
+      <div id="panel-suggestion" class="hidden">
+
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-white/40 text-xs tracking-wider uppercase">사용자 문제 제안 검토</p>
+          <button
+            onclick="loadSuggestions()"
+            class="text-xs text-neon-blue/70 hover:text-neon-blue transition-colors px-3 py-1.5 rounded-xl border border-neon-blue/20 hover:border-neon-blue/50">
+            🔄 새로고침
+          </button>
+        </div>
+
+        <!-- 제안 목록 컨테이너 -->
+        <div id="suggestionList" class="space-y-4">
+          <p class="text-white/30 text-sm text-center py-8">탭을 클릭하면 제안 목록을 불러옵니다.</p>
+        </div>
+
+        <!-- 로딩/빈 상태 -->
+        <div id="suggestionEmpty" class="hidden text-center py-10">
+          <p class="text-white/30 text-sm">대기 중인 제안이 없습니다. 🎉</p>
+        </div>
+
+        <!-- 토스트 메시지 -->
+        <div id="suggestionToast" class="hidden card-glass rounded-2xl px-5 py-3 text-sm text-center text-white/80 mt-4"></div>
       </div>
 
     </div>
