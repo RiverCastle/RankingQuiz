@@ -17,4 +17,9 @@ public class AdminPageController {
     public String adminLogin() {
         return "admin/admin-login";
     }
+
+    @GetMapping("/reports")
+    public String adminReports() {
+        return "admin/admin-reports";
+    }
 }

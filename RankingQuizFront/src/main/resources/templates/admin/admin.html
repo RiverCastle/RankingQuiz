@@ -26,6 +26,22 @@
 
     <!-- 탭 네비게이션 -->
     <div id="adminContent" class="hidden">
+
+      <!-- 신고 관리 바로가기 -->
+      <a href="/admin/reports"
+        class="flex items-center justify-between card-glass rounded-2xl px-5 py-4 mb-5 hover:bg-white/5 transition-all group">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-xl">
+            🚨
+          </div>
+          <div>
+            <p class="font-bold text-sm text-white">문제 신고 관리</p>
+            <p class="text-white/40 text-xs mt-0.5">사용자 신고 접수 내역 확인 및 처리</p>
+          </div>
+        </div>
+        <span class="text-white/30 group-hover:text-white/60 transition-colors text-sm">→</span>
+      </a>
+
       <div class="flex gap-2 mb-6">
         <button id="tab-home"
           class="admin-tab active flex-1 py-3 rounded-2xl text-sm font-bold tracking-wide transition-all duration-200">
