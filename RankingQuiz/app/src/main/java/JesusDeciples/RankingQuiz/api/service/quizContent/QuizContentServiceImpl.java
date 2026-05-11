@@ -27,19 +27,11 @@ public class QuizContentServiceImpl implements QuizContentService {
     public void addQuizContent(QuizContentCreateDto dto) {
         QuizType dtoType = dto.getQuizType();
         if (dtoType == QuizType.MULTIPLE_CHOICE) {
-            List<String> multipleOptions = dto.getMultipleOptions();
-            if (multipleOptions != null) {
-                MultipleChoiceQuizContent entity = new MultipleChoiceQuizContent();
-                entity.setOptions((dto).getMultipleOptions());
-                entity.setStatement(dto.getStatement());
-                entity.setAnswer(dto.getAnswer());
-                entity.setTimeLimit(dto.getTimeLimit());
-                entity.setCategory(dto.getCategory());
+            if (dto.getMultipleOptions() != null) {
+                MultipleChoiceQuizContent entity = MultipleChoiceQuizContent.of(dto);
                 multipleChoiceQuizContentRepository.save(entity);
                 repository.save(entity);
             }
-            // 보기 없는 보기형 문제 생성 요청의 경우는 예외처리
-
         } else if (dtoType == SHORT_ANSWER_WRITING) {
             ShortAnswerQuizContent entity = new ShortAnswerQuizContent();
             entity.setStatement(dto.getStatement());

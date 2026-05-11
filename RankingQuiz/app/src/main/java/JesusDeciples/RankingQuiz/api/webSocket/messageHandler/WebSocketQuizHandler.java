@@ -137,9 +137,9 @@ public class WebSocketQuizHandler implements WebSocketHandler {
     private boolean checkConnectionAlready(WebSocketSession session, Long memberId) throws IOException {
         for (WebSocketSession presentSession : sessions.values()) {
             if (memberId.equals(presentSession.getAttributes().get("memberId"))) {
-                sendMessageToSpecificSession(new TextMessage("이미 해당 퀴즈에 참여중입니다. 오류라면 에러 피드백을 남겨주세요. 비정상적인 접속으로 여겨져 접속이 종료됩니다."), session);
+                session.sendMessage(textMessageFactory.produceTextMessage(guideMessageBundle.getDuplicateConnectionMessage()));
                 session.close();
-                sendMessageToSpecificSession(new TextMessage("또 다른 접속이 감지되었습니다. 본인이 아니라면 암호를 바꾸시길 권장드립니다. 비정상적인 접속으로 여겨져 접속이 종료됩니다."), presentSession);
+                presentSession.sendMessage(textMessageFactory.produceTextMessage(guideMessageBundle.getAnotherConnectionDetectedMessage()));
                 presentSession.close();
                 return false;
             }
@@ -149,10 +149,6 @@ public class WebSocketQuizHandler implements WebSocketHandler {
 
     private void sendMessageToAllSessions(TextMessage message) throws IOException {
         for (WebSocketSession session : sessions.values()) session.sendMessage(message);
-    }
-
-    private void sendMessageToSpecificSession(TextMessage message, WebSocketSession session) throws IOException {
-        session.sendMessage(message);
     }
 
     private void sendQuizResultMessage() throws IOException {
