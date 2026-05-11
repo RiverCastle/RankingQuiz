@@ -41,7 +41,6 @@ function initQuizWebSocket(wsPath) {
         console.error('WebSocket 오류:', error);
     };
 
-    socket.onclose = function () {};
     socket.onclose = function () {
         if (!intentionalClose) {
             window.open('/feedback', '_blank');
